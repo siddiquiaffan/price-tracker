@@ -55,7 +55,7 @@ bot.command('track', async ctx => {
             ctx.reply(`Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.`);
         }
     }else{
-        ctx.reply(`Sorry ${ctx.messsage.chat.first_name}, I can't track this product. Make sure you've sent correct product link.`);
+        ctx.reply(`Sorry ${ctx.message.chat.first_name}, I can't track this product. Make sure you've sent correct product link.`);
     }
 });
 
