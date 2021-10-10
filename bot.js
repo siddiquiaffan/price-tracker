@@ -45,9 +45,10 @@ bot.command('track', async ctx => {
         if(merchant.match(/amazon|flipkart/gi)){
             const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, {reply_to_message_id: ctx.message.message_id});
             const details = await getProductDetails(productUrl, merchant);
-            await manageProducts({tracking_id: getRandomId(), userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
+            const tracking_id = getRandomId();
+            await manageProducts({tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
             await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ details.tracking_id})`,
+                `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ tracking_id})`,
                 { parse_mode: "Markdown", reply_markup }
             );
 
