@@ -77,6 +77,7 @@ bot.command('stop', async ctx => {
 });
 
 bot.command('broadcast', async ctx => {
+    console.log(ctx.from.id, ADMINS);
     if(ADMINS.includes(ctx.from.id)){
         let msg = ctx.message.text.replace('/broadcast ', '');
         const inline_keyboard = ctx.message.text.split('inline_keyboard:')[1];
@@ -116,5 +117,5 @@ const track = async() => {
         }
     }));
 }
-setInterval(track, 60000); //Track every 3 hrs
+setInterval(track, 10800000); //Track every 3 hrs
 bot.start()
