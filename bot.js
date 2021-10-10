@@ -85,7 +85,7 @@ bot.command('broadcast', async ctx => {
         const users = await manageUsers({}, 'read');
         await Promise.all(users.result.map(async user => {
             ctx.api.sendMessage(user.id, msg.replace(/{name}/gi, user.name).replace(/{id}/gi, user.id), 
-            {parse_mode: "Markdown", disable_web_page_preview: true, reply_markup: {inline_keyboard: JSON.parse(inline_keyboard)}});
+            {parse_mode: "Markdown", disable_web_page_preview: true, reply_markup: {inline_keyboard: inline_keyboard ? JSON.parse(inline_keyboard) : null}});
         }));
     }
 })
