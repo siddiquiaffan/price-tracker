@@ -4,7 +4,8 @@
   "description": "A telegram bot which can track prices for amazon and flipkart products. (Soon more)",
   "main": "bot.js",
   "scripts": {
-    "test": " nodemon bot.js --ignore *.json"
+    "test": " nodemon bot.js --ignore *.json",
+    "start": " nodemon bot.js --ignore *.json"
   },
   "repository": {
     "type": "git",
