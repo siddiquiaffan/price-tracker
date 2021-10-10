@@ -33,7 +33,6 @@ const getProductDetails = async(url, merchant) => {
             title: $(selector.title).text().trim(),
             image: $(selector.image).attr('src'),
             link: link.toString(),
-            tracking_id: getRandomId()
         }
     }catch(e){
         console.log(e);
@@ -41,4 +40,4 @@ const getProductDetails = async(url, merchant) => {
     }
 }
 
-module.exports = { isUrl, getProductDetails };
+module.exports = { isUrl, getRandomId, getProductDetails };
