@@ -48,7 +48,7 @@ bot.command('track', async ctx => {
             const tracking_id = getRandomId();
             await manageProducts({tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
             await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ tracking_id})`,
+                `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ tracking_id}`,
                 { parse_mode: "Markdown", reply_markup }
             );
 
