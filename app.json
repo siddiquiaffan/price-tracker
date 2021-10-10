@@ -1,0 +1,41 @@
+{
+    "name": "price-tracker",
+    "description": "A telegram bot which can track prices for amazon and flipkart products. (Soon more)",
+    "keywords": ["price-tracker", "amazon", "flipkart", "ecommerce", "tracker", "telegram", "bot"],
+    "repository": "https://github.com/AffanTheBest/price-tracker",
+    "website": "https://asloot.cf",
+    "scripts": {
+      "worker": "npm start"
+    },
+    "buildpacks": [
+      {
+        "url": "heroku/nodejs"
+      },
+      {
+        "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/jontewks/puppeteer.tgz"
+      }
+    ],
+    "env": {
+      "ADMINS": {
+        "description": "Telegram admin ID.",
+        "value": "",
+        "required" : true
+      },
+      "BOT_TOKEN": {
+        "description": "Your telegram bot token. Get it from https://t.me/BotFather",
+        "value": "",
+        "required" : true
+      },
+      "DB_URL":{
+        "description": "Mongo db database URL. Get it from https://cloud.mongodb.com",
+        "value": ""
+      }
+    },
+    "formation": {
+      "worker":{
+        "quantity": 1,
+        "size": "free"
+      }
+    },
+    "addons": []
+  }
