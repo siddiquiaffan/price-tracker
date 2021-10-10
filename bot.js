@@ -1,7 +1,7 @@
 // Imports
 const { Bot } = require("grammy");
 const {BOT_TOKEN, ADMINS} = require("./config");
-const {isUrl, getProductDetails} = require("./utils");
+const {isUrl, getRandomId, getProductDetails} = require("./utils");
 const {manageProducts, manageUsers} = require("./db");
 
 const bot = new Bot(BOT_TOKEN); // Initialize bot
@@ -45,10 +45,10 @@ bot.command('track', async ctx => {
         if(merchant.match(/amazon|flipkart/gi)){
             const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, {reply_to_message_id: ctx.message.message_id});
             const details = await getProductDetails(productUrl, merchant);
-            await manageProducts({tracking_id: details.tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
+            await manageProducts({tracking_id: getRandomId(), userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
             await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                `Tracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ details.tracking_id}`,
-                { parse_mode: "Markdown", disable_web_page_preview: true, reply_markup }
+                `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ details.tracking_id})`,
+                { parse_mode: "Markdown", reply_markup }
             );
 
         }else{
@@ -88,19 +88,33 @@ bot.command('broadcast', async ctx => {
     }
 })
 
+bot.callbackQuery('stopTracking', async ctx => {
+    const tracking_id = ctx.update?.callback_query?.message?.reply_markup?.inline_keyboard[1][0]?.text?.split(' - ')[1];
+    const result = await manageProducts({tracking_id, userId: ctx.from.id}, 'delete');
+    ctx.api.editMessageText(ctx.update?.callback_query?.message?.chat?.id, ctx.update?.callback_query?.message?.message_id,
+        result.ok ?
+            `Stopped tracking product with tracking id ${tracking_id}` :
+            `Sorry, I can't stop tracking product with tracking id ${tracking_id}.`
+    );
+})
+
+// console.log(Object.keys(bot));
+
 const track = async() => {
     const products = await manageProducts({}, 'read');
     await Promise.all(products.result.map(async product => {
         const details = await getProductDetails(product.link, product.merchant);
-        if(details.price !== product.price){
+        if(details.price == product.price){
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
-            bot.api.sendMessage(product.userId, `*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ product.tracking_id}`, 
-                {parse_mode: "Markdown", disable_web_page_preview: true, reply_markup: {inline_keyboard: [
-                    [{text: 'Buy Now', url: details.link}]
+            bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ product.tracking_id}`, 
+                {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
+                    [{text: 'Buy Now', url: details.link}],
+                    [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
                 ]}}
             );
         }
     }));
 }
-setInterval(track, 60000);
+track();
+// setInterval(track, 60000);
 bot.start()
