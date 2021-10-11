@@ -22,14 +22,14 @@ const selectors = {
     }
 }
 const getProductDetails = async(url, merchant) => {
-    const {data} = await axios.get(url, {
-        headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
-          },
-    });
     try{
-        const $ = cheerio.load(data);
+        const res = await axios.get(url, {
+            headers: {
+                "User-Agent":
+                  "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
+              },
+        });
+        const $ = cheerio.load(res.data);
         const selector = selectors[merchant];
         const link = new URL(url);
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
