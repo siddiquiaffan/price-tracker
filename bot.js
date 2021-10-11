@@ -134,5 +134,5 @@ const track = async() => {
         }
     }));
 }
-setInterval(track, 300000); //Track every 3 hrs
+setInterval(track, 3600000); //Track every hr.
 bot.start()
