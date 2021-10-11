@@ -93,6 +93,19 @@ bot.command('broadcast', async ctx => {
     }
 })
 
+bot.command('users', async ctx => {
+    if(ADMINS.includes(ctx.from.id)){
+        let users = await manageUsers({}, 'read');
+        users = 'List Of Users: \n\n' +  users.result.map(user => `${user.id} - <a href="tg://user?id=${user.id}">${user.name}</a>`).join('\n');
+        ctx.reply(users, {parse_mode: "HTML"});
+    }
+})
+bot.command('statistics', async ctx => {
+    const users = await manageUsers({}, 'read');
+    const products = await manageProducts({}, 'read');
+    ctx.reply(`Total Users: ${users.result.length}\nTotal Products: ${products.result.length}`);
+})
+
 bot.callbackQuery('stopTracking', async ctx => {
     const tracking_id = ctx.update?.callback_query?.message?.reply_markup?.inline_keyboard[1][0]?.text?.split(' - ')[1];
     const result = await manageProducts({tracking_id, userId: ctx.from.id}, 'delete');
@@ -109,16 +122,17 @@ const track = async() => {
     const products = await manageProducts({}, 'read');
     await Promise.all(products.result.map(async product => {
         const details = await getProductDetails(product.link, product.merchant);
+        // console.log(details);
         if(details.price !== product.price){
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
             bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ product.tracking_id}`, 
                 {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
-                    [{text: 'Buy Now', url: details.link}],
-                    [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
+                    // [{text: 'Buy Now', url: details.link}],
+                    // [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
                 ]}}
             );
         }
     }));
 }
-setInterval(track, 10800000); //Track every 3 hrs
+setInterval(track, 300000); //Track every 3 hrs
 bot.start()
