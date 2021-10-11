@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "test": " nodemon bot.js --watch ./ --ignore *.json",
-    "start": " nodemon bot.js --watch ./ --ignore *.json"
+    "start": " node bot.js"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,6 @@
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^10.0.0",
     "grammy": "^1.3.3",
-    "mongodb": "^4.1.3",
-    "nodemon": "^2.0.13"
+    "mongodb": "^4.1.3"
   }
 }
