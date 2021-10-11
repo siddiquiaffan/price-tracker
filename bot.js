@@ -100,7 +100,7 @@ bot.command('users', async ctx => {
         ctx.reply(users, {parse_mode: "HTML"});
     }
 })
-bot.command('statistics', async ctx => {
+bot.command('stats', async ctx => {
     const users = await manageUsers({}, 'read');
     const products = await manageProducts({}, 'read');
     ctx.reply(`Total Users: ${users.result.length}\nTotal Products: ${products.result.length}`);
