@@ -123,7 +123,7 @@ const track = async() => {
     await Promise.all(products.result.map(async product => {
         const details = await getProductDetails(product.link, product.merchant);
         // console.log(details);
-        if(details.price == product.price){
+        if(details.price !== product.price){
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
             bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ product.tracking_id}`, 
                 {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
@@ -134,5 +134,5 @@ const track = async() => {
         }
     }));
 }
-setInterval(track, 1000 * 60); //Track every 3 hrs
+setInterval(track, 300000); //Track every 3 hrs
 bot.start()
