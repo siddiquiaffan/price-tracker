@@ -14,5 +14,6 @@ if(!process.env.DB_URL) {
 module.exports = {
     ADMINS: process.env.ADMINS || '',
     BOT_TOKEN: process.env.BOT_TOKEN || '',
-    DB_URL: process.env.DB_URL || ''
+    DB_URL: process.env.DB_URL || '',
+    WORKER_URL: process.env.WORKER_URL || ''
 }
