@@ -31,17 +31,21 @@ const getProductDetails = async(url, merchant) => {
         });
         const $ = cheerio.load(res.data);
         const selector = selectors[merchant];
-        const link = new URL(url);
+        let link = new URL(url);
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
-        return {
+        link = link.toString();
+        const {price, title, image} = {
             price: Number($(selector.price).text().trim().replace(/[^0-9.]/g, '')),
             title: $(selector.title).text().trim(),
             image: $(selector.image).attr('src'),
-            link: link.toString(),
         }
+        if(!title || !price || !image) {
+            return {ok: false}
+        }
+        return {ok: true, title, price, image, link}
     }catch(e){
         console.log(e);
-        return
+        return {ok: false}
     }
 }
 
