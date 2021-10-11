@@ -15,8 +15,9 @@ If you like this project, please leave a 🌟.
 
 ## NOTE
 ```
-- Use this bot at your own risk.
 - Do not clone this repo (You can fork it instead).
+- Use this bot at your own risk.
+- This bot can be a little bit slow cuz using cloudfare workers for scrapping product data (To avoid ip blocking from Amazon & Flipkart)
 ```
 -----------
 ## Contributing
