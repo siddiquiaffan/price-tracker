@@ -13,13 +13,13 @@ const getRandomId = () => [...Array(10)].map(i=>(~~(Math.random()*36)).toString(
 const selectors = {
     amazon: {
         title: '#productTitle',
-        price: '#priceblock_dealprice',
+        price: '#priceblock_ourprice',
         image: '#landingImage'
     },
     flipkart: {
         price: '._30jeq3._16Jk6d',
         title: '.B_NuCI',
-        image: '.CXW8mj._3nMexc > img'
+        image: '#container > div > div._2c7YLP.UtUXW0._6t1WkM._3HqJxg > div._1YokD2._2GoDe3 > div._1YokD2._3Mn1Gg.col-5-12._78xt5Y > div:nth-child(1) > div > div._3li7GG > div._1BweB8 > div._3kidJX > div.CXW8mj._3nMexc > img'
     }
 }
 const getProductDetails = async(url, merchant) => {
