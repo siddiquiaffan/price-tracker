@@ -128,8 +128,8 @@ const track = async() => {
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
             bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send /stop_${product.tracking_id}}`, 
                 {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
-                    // [{text: 'Buy Now', url: details.link}],
-                    // [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
+                    [{text: 'Buy Now', url: details.link}],
+                    [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
                 ]}}
             );
         }
