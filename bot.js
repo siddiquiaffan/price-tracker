@@ -126,8 +126,8 @@ const track = async() => {
         // console.log(details);
         if(details.price !== product.price){
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
-            bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send /stop_${product.tracking_id}}`, 
-                {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
+            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}}`, 
+                {parse_mode: "HTML", reply_markup: {inline_keyboard: [
                     [{text: 'Buy Now', url: details.link}],
                     [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
                 ]}}
