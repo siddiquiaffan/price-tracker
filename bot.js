@@ -30,7 +30,7 @@ bot.command('start', (ctx) => { // start command
 });
 
 bot.command('help', (ctx) => { // help command
-    ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop {Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @assuportchat.`,
+    ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @assuportchat.`,
     {
         reply_to_message_id: ctx.message.message_id,
         parse_mode: "Markdown",
@@ -49,8 +49,8 @@ bot.command('track', async ctx => {
                 const tracking_id = getRandomId();
                 await manageProducts({tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price}, 'update');
                 await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                    `[ ](${details.image})\nTracking *${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ tracking_id}`,
-                    { parse_mode: "Markdown", reply_markup }
+                    `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
+                    { parse_mode: "HTML", reply_markup }
                 );
             }else{
                 await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id, `Sorry, I couldn't track this product. Make sure you've sent correct product link.`, {parse_mode: "Markdown", reply_markup});
@@ -65,19 +65,19 @@ bot.command('track', async ctx => {
 
 bot.command('list', async ctx => {
     const products = await manageProducts({userId: ctx.from.id}, 'read');
-    const list = products.result.map((product) => `**${product.title}**\nLast Price: ${product.price}\nLink: [${product.merchant}](${product.link})\nTo stop send ${'`/stop `'+ product.tracking_id}`).join('\n\n');
-    ctx.reply(`Here is your tracking list:\n\n${list}`, {reply_to_message_id: ctx.message.message_id, parse_mode: "Markdown", disable_web_page_preview: true});
+    const list = products.result.map((product) => `<b>${product.title}</b>\nLast Price: ${product.price}\nLink: <a href="${product.link}">${product.merchant}</a>\nTo stop send /stop_${product.tracking_id}`).join('\n\n');
+    ctx.reply(`Here is your tracking list:\n\n${list}`, {reply_to_message_id: ctx.message.message_id, parse_mode: "HTML", disable_web_page_preview: true});
 })
 
-bot.command('stop', async ctx => {
-    const tracking_id = ctx.message.text.replace('/stop ', '');
+bot.hears(/^\/stop_([a-z0-9])/, async ctx => {
+    const tracking_id = ctx.message.text.replace('/stop_', '');
     const result = await manageProducts({tracking_id, userId: ctx.from.id}, 'delete');
     ctx.reply(
         result.ok ?
             `Stopped tracking product with tracking id ${tracking_id}` :
             `Sorry, I can't stop tracking product with tracking id ${tracking_id}.`
     )
-});
+})
 
 bot.command('broadcast', async ctx => {
     console.log(ctx.from.id, ADMINS);
@@ -116,6 +116,7 @@ bot.callbackQuery('stopTracking', async ctx => {
     );
 })
 
+
 // console.log(Object.keys(bot));
 
 const track = async() => {
@@ -125,7 +126,7 @@ const track = async() => {
         // console.log(details);
         if(details.price !== product.price){
             await manageProducts({tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price}, 'update');
-            bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send ${'`/stop `'+ product.tracking_id}`, 
+            bot.api.sendMessage(product.userId, `[ ](${details.image})*Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}*. \n\n*${details.title}*\n\nCurrent Price: *${details.price}*\nLink: [${product.merchant}](${details.link})\n\nTo stop tracking send /stop_${product.tracking_id}}`, 
                 {parse_mode: "Markdown", reply_markup: {inline_keyboard: [
                     // [{text: 'Buy Now', url: details.link}],
                     // [{text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking`}]
