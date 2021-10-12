@@ -13,17 +13,18 @@ const getRandomId = () => [...Array(10)].map(i=>(~~(Math.random()*36)).toString(
 const selectors = {
     amazon: {
         title: '#productTitle',
-        price: '#priceblock_ourprice',
-        image: '#landingImage'
+        price1: '#priceblock_dealprice', price2: '#priceblock_ourprice',
+        image1: '#landingImage'
     },
     flipkart: {
-        price: '._30jeq3._16Jk6d',
         title: '.B_NuCI',
-        image: '#container > div > div._2c7YLP.UtUXW0._6t1WkM._3HqJxg > div._1YokD2._2GoDe3 > div._1YokD2._3Mn1Gg.col-5-12._78xt5Y > div:nth-child(1) > div > div._3li7GG > div._1BweB8 > div._3kidJX > div.CXW8mj._3nMexc > img'
+        price1: '._30jeq3._16Jk6d',
+        image1: '#container > div > div._2c7YLP.UtUXW0._6t1WkM._3HqJxg > div._1YokD2._2GoDe3 > div._1YokD2._3Mn1Gg.col-5-12._78xt5Y > div:nth-child(1) > div > div._3li7GG > div._1BweB8 > div._3kidJX > div.CXW8mj._3nMexc > img',
     }
 }
 const getProductDetails = async(url, merchant) => {
     try{
+        // console.log(encodeURIComponent(url));
         const res = await axios.get(`${WORKER_URL}/?url=${encodeURIComponent(url)}`, {
             headers: {
                 "User-Agent":
@@ -36,9 +37,9 @@ const getProductDetails = async(url, merchant) => {
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
         link = link.toString();
         const {price, title, image} = {
-            price: Number($(selector.price).text().trim().replace(/[^0-9.]/g, '')),
             title: $(selector.title).text().trim(),
-            image: $(selector.image).attr('src'),
+            price: Number($(selector.price1).text().trim().replace(/[^0-9.]/g, '')) || Number($(selector.price2).text().trim().replace(/[^0-9.]/g, '')),
+            image: $(selector.image1).attr('src'),
         }
         if(!title || !price || !image) {
             return {ok: false}
