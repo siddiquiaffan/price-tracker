@@ -15,5 +15,6 @@ module.exports = {
     ADMINS: process.env.ADMINS || '',
     BOT_TOKEN: process.env.BOT_TOKEN || '',
     DB_URL: process.env.DB_URL || '',
-    WORKER_URL: process.env.WORKER_URL || ''
+    WORKER_URL: process.env.WORKER_URL || '',
+    API_KEY: process.env.API_KEY || '', // Generate any API Key and pass it when accessing the API.
 }
