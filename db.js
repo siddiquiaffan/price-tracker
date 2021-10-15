@@ -52,7 +52,7 @@ const manageProducts = async(data, action) => {
                 return {ok: true}
             case 'update':
                 const res = await collection.updateOne({tracking_id: data.tracking_id}, {$set: data}, {upsert: true});
-                return {ok: true}
+                return {ok: true, tracking_id: data.tracking_id}
             case 'read':
                 const result = await collection.find(data).toArray();
                 return {ok:true, result};
