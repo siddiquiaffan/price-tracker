@@ -139,4 +139,4 @@ const track = async () => {
 
 setInterval(track, 3600000); //Track every hr.
 
-bot.start();
+bot.start().then(() => console.log('Bot launched!'));
