@@ -22,6 +22,7 @@ const selectors = {
         image1: '#container > div > div._2c7YLP.UtUXW0._6t1WkM._3HqJxg > div._1YokD2._2GoDe3 > div._1YokD2._3Mn1Gg.col-5-12._78xt5Y > div:nth-child(1) > div > div._3li7GG > div._1BweB8 > div._3kidJX > div.CXW8mj._3nMexc > img',
     }
 }
+
 const getProductDetails = async(url, merchant) => {
     try{
         const res = await axios.get(`${WORKER_URL}/?url=${encodeURIComponent(url)}`, {
@@ -35,12 +36,10 @@ const getProductDetails = async(url, merchant) => {
         let link = new URL(url);
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
         link = link.toString();
-        const {price, title, image} = {
-            title: $(selector.title).text().trim(),
-            price: Number($(selector.price1).text().trim().replace(/[^0-9.]/g, '')) || Number($(selector.price2).text().trim().replace(/[^0-9.]/g, '')),
-            image: $(selector.image1).attr('src'),
-        }
-        if(!title || !price || !image) {
+        const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
+        const title = $(selector.title).text().trim();
+        const image = $(selector.image1).attr('src');
+        if(!title || !price) {
             return {ok: false}
         }
         return {ok: true, title, price, image, link}
