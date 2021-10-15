@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "test": " nodemon bot.js --watch ./ --ignore *.json",
-    "start": " node bot.js"
+    "start": " node index.js"
   },
   "repository": {
     "type": "git",
