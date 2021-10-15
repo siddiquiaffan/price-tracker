@@ -30,7 +30,7 @@ bot.command('start', (ctx) => { // start command
 });
 
 bot.command('help', (ctx) => { // help command
-    ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @assuportchat.`,
+    ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @@assupportchat.`,
         {
             reply_to_message_id: ctx.message.message_id,
             reply_markup
@@ -79,7 +79,6 @@ bot.hears(/^\/stop_([a-z0-9])/, async ctx => {
 })
 
 bot.command('broadcast', async ctx => {
-    console.log(ctx.from.id, ADMINS);
     if (ADMINS.includes(ctx.from.id)) {
         let msg = ctx.message.text.replace('/broadcast ', '');
         const inline_keyboard = ctx.message.text.split('inline_keyboard:')[1];
@@ -101,6 +100,7 @@ bot.command('users', async ctx => {
         ctx.reply(users, { parse_mode: "HTML" });
     }
 })
+
 bot.command('stats', async ctx => {
     const users = await manageUsers({}, 'read');
     const products = await manageProducts({}, 'read');
@@ -117,17 +117,13 @@ bot.callbackQuery('stopTracking', async ctx => {
     );
 })
 
-
-// console.log(Object.keys(bot));
-
 const track = async () => {
     const products = await manageProducts({}, 'read');
     await Promise.all(products.result.map(async product => {
         const details = await getProductDetails(product.link, product.merchant);
-        // console.log(details);
         if (details.price !== product.price) {
             await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price }, 'update');
-            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${product.price > details.price ? 'decreased' : 'increased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}}`,
+            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${product.price > details.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}}`,
                 {
                     parse_mode: "HTML", reply_markup: {
                         inline_keyboard: [
@@ -140,5 +136,7 @@ const track = async () => {
         }
     }));
 }
+
 setInterval(track, 3600000); //Track every hr.
-bot.start()
+
+bot.start();
