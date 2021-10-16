@@ -76,7 +76,7 @@ app.get('/info', async(req, res) => {
         let users = (await manageUsers({}, 'read')).result;
         res.status(200).send(JSON.stringify(users.map(u => ({id: u.id, name: u.name, mail: u?.mail?.trim()}))))
     }
-    res.send({})
+    res.send(JSON.stringify({error: 'Invalid API key'}))
 })
 
 app.listen(port, async () => console.log('listening to port ' + port));
