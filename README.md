@@ -3,8 +3,17 @@
 # price-tracker [@AsTracker](https://t.me/AsPriceTrackerBot)
 A Telegram bot that can track price of amazon & flipkart products (Soon more). 
 If you like this project, please leave a 🌟.
-----------
 
+---------
+## Features
+```
+- Track Amazon Product.
+- Track Flipkart Product.
+- Notify on every price change.
+- Broadcast (Admin).
+- API support
+```
+---------
 ## How to use
 ```
 /start - Start the bot
