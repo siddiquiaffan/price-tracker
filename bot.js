@@ -123,7 +123,7 @@ const track = async () => {
         const details = await getProductDetails(product.link, product.merchant);
         if (details.price !== product.price) {
             await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price }, 'update');
-            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${ details.price > product.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}}`,
+            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${ details.price > product.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
                 {
                     parse_mode: "HTML", reply_markup: {
                         inline_keyboard: [
