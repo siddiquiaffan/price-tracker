@@ -11,7 +11,7 @@ If you like this project, please leave a 🌟.
 - Track Flipkart Product.
 - Notify on every price change.
 - Broadcast (Admin).
-- API support
+- API support.
 ```
 ---------
 ## How to use
