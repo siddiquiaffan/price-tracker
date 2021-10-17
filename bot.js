@@ -44,12 +44,14 @@ bot.command('track', async ctx => {
             const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
             const details = await getProductDetails(productUrl, merchant);
             if (details.ok) {
-                const tracking_id = getRandomId();
-                await manageProducts({ tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price }, 'update');
-                await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                    `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
-                    { parse_mode: "HTML", reply_markup }
-                );
+                try{
+                    const tracking_id = getRandomId();
+                    await manageProducts({ tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price }, 'update');
+                    await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
+                        `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
+                        { parse_mode: "HTML", reply_markup }
+                    );
+                }catch(e){}
             } else {
                 await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id, `Sorry, I couldn't track this product. Make sure you've sent correct product link.`, { parse_mode: "Markdown", reply_markup });
             }
