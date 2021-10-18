@@ -20,12 +20,14 @@ const reply_markup = { //common repky markup
 }
 
 bot.command('start', (ctx) => { // start command
-    ctx.reply(`Hello ${ctx.message.chat.first_name}, I can track price for Amazon & Flipkart products (Soon more).\n\nCheck /help to get started.\n`,
-        {
-            reply_to_message_id: ctx.message.message_id,
-            reply_markup
-        });
-    manageUsers({ id: ctx.message.from.id, name: ctx.message.from.first_name }, 'update');
+    try{
+        ctx.reply(`Hello ${ctx.message.chat.first_name}, I can track price for Amazon & Flipkart products (Soon more).\n\nCheck /help to get started.\n`,
+            {
+                reply_to_message_id: ctx.message.message_id,
+                reply_markup
+            });
+        manageUsers({ id: ctx.message.from.id, name: ctx.message.from.first_name }, 'update');
+    }catch (e) { }
 });
 
 bot.command('help', (ctx) => { // help command
