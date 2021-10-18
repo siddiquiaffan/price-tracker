@@ -146,6 +146,14 @@ const track = async () => {
     } catch (e) { }
 }
 
+bot.catch((err) => {
+    console.error('err');
+    const ctx = err.ctx;
+    console.error(`Error while handling update ${ctx.update.update_id}:`);
+    const e = err.error;
+      console.error("Error: ", e.description);
+});
+
 setInterval(track, 3600000); //Track every hr.
 
 module.exports = bot;
