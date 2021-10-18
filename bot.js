@@ -29,11 +29,13 @@ bot.command('start', (ctx) => { // start command
 });
 
 bot.command('help', (ctx) => { // help command
-    ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @@assupportchat.`,
-        {
-            reply_to_message_id: ctx.message.message_id,
-            reply_markup
-        });
+    try {
+        ctx.reply(`/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @@assupportchat.`,
+            {
+                reply_to_message_id: ctx.message.message_id,
+                reply_markup
+            });
+    } catch (e) { }
 });
 
 bot.command('track', async ctx => {
@@ -44,14 +46,14 @@ bot.command('track', async ctx => {
             const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
             const details = await getProductDetails(productUrl, merchant);
             if (details.ok) {
-                try{
+                try {
                     const tracking_id = getRandomId();
                     await manageProducts({ tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price }, 'update');
                     await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
                         `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
                         { parse_mode: "HTML", reply_markup }
                     );
-                }catch(e){}
+                } catch (e) { }
             } else {
                 await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id, `Sorry, I couldn't track this product. Make sure you've sent correct product link.`, { parse_mode: "Markdown", reply_markup });
             }
@@ -119,23 +121,25 @@ bot.callbackQuery('stopTracking', async ctx => {
 })
 
 const track = async () => {
-    const products = await manageProducts({}, 'read');
-    await Promise.all(products.result.map(async product => {
-        const details = await getProductDetails(product.link, product.merchant);
-        if (details.price !== product.price) {
-            await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price }, 'update');
-            bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${ details.price > product.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
-                {
-                    parse_mode: "HTML", reply_markup: {
-                        inline_keyboard: [
-                            [{ text: 'Buy Now', url: details.link }],
-                            [{ text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking` }]
-                        ]
+    try {
+        const products = await manageProducts({}, 'read');
+        await Promise.all(products.result.map(async product => {
+            const details = await getProductDetails(product.link, product.merchant);
+            if (details.price !== product.price) {
+                await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price }, 'update');
+                bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
+                    {
+                        parse_mode: "HTML", reply_markup: {
+                            inline_keyboard: [
+                                [{ text: 'Buy Now', url: details.link }],
+                                [{ text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking` }]
+                            ]
+                        }
                     }
-                }
-            );
-        }
-    }));
+                );
+            }
+        }));
+    } catch (e) { }
 }
 
 setInterval(track, 3600000); //Track every hr.
