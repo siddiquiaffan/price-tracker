@@ -27,7 +27,9 @@ bot.command('start', (ctx) => { // start command
                 reply_markup
             });
         manageUsers({ id: ctx.message.from.id, name: ctx.message.from.first_name }, 'update');
-    }catch (e) { }
+    }catch (e) {
+        console.log('Error', e);
+    }
 });
 
 bot.command('help', (ctx) => { // help command
