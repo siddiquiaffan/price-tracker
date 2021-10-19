@@ -129,14 +129,16 @@ const track = async () => {
         const products = await manageProducts({}, 'read');
         await Promise.all(products.result.map(async product => {
             const details = await getProductDetails(product.link, product.merchant);
-            if (details.price !== product.price) {
+            if (details.ok && !isNaN(details.price) && details.price !== product.price) {
                 await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price }, 'update');
                 bot.api.sendMessage(product.userId, `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? 'increased' : 'decreased'} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
                     {
                         parse_mode: "HTML", reply_markup: {
                             inline_keyboard: [
-                                [{ text: 'Buy Now', url: details.link }],
-                                [{ text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking` }]
+                                details?.link ?
+                                ([{ text: 'Buy Now', url: details.link }],
+                                [{ text: 'Stop Tracking - ' + product.tracking_id, callback_data: `stopTracking` }])
+                                : []
                             ]
                         }
                     }
