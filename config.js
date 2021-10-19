@@ -17,4 +17,5 @@ module.exports = {
     DB_URL: process.env.DB_URL || '',
     WORKER_URL: process.env.WORKER_URL || '',
     API_KEY: process.env.API_KEY || '', // Generate any API Key and pass it when accessing the API.
+    LIMIT: Number(process.env.LIMIT), // Maximum number of products can be added by a user at a time.
 }

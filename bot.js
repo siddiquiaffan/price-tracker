@@ -1,6 +1,6 @@
 // Imports
 const { Bot } = require("grammy");
-const { BOT_TOKEN, ADMINS } = require("./config");
+const { BOT_TOKEN, ADMINS, LIMIT } = require("./config");
 const { isUrl, getRandomId, getProductDetails } = require("./utils");
 const { manageProducts, manageUsers } = require("./db");
 
@@ -47,19 +47,25 @@ bot.command('track', async ctx => {
     if (isUrl(productUrl)) {
         const merchant = productUrl.replace('www.', '').split('//')[1].split('.')[0];
         if (merchant.match(/amazon|flipkart/gi)) {
-            const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
-            const details = await getProductDetails(productUrl, merchant);
-            if (details.ok) {
-                try {
-                    const tracking_id = getRandomId();
-                    await manageProducts({ tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price }, 'update');
-                    await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
-                        `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
-                        { parse_mode: "HTML", reply_markup }
-                    );
-                } catch (e) { }
-            } else {
-                await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id, `Sorry, I couldn't track this product. Make sure you've sent correct product link.`, { parse_mode: "Markdown", reply_markup });
+            const noOfProducts = (await manageProducts({ userId: ctx.from.id }, 'read'))?.result?.length;
+            if(noOfProducts < LIMIT){
+                const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
+                const details = await getProductDetails(productUrl, merchant);
+                if (details.ok) {
+                    try {
+                        const tracking_id = getRandomId();
+                        await manageProducts({ tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price }, 'update');
+                        await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id,
+                            `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
+                            { parse_mode: "HTML", reply_markup }
+                        );
+                    } catch (e) { }
+                } else {
+                    await ctx.api.editMessageText(ctx.chat.id, sentMsg.message_id, `Sorry, I couldn't track this product. Make sure you've sent correct product link.`, { parse_mode: "Markdown", reply_markup });
+                }
+            }else{
+                ctx.reply("I'm sorry, but you can't add more products as you've already reached the maximum limit.\n\nPlease delete atleast one product. And try again.\n\nTo get list send /list", 
+                {reply_to_message_id: ctx.message.message_id})
             }
         } else {
             ctx.reply(`Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.`);
@@ -70,9 +76,13 @@ bot.command('track', async ctx => {
 });
 
 bot.command('list', async ctx => {
-    const products = await manageProducts({ userId: ctx.from.id }, 'read');
-    const list = products.result.map((product) => `<b>${product.title}</b>\nLast Price: ${product.price}\nLink: <a href="${product.link}">${product.merchant}</a>\nTo stop send /stop_${product.tracking_id}`).join('\n\n');
-    ctx.reply(`Here is your tracking list:\n\n${list}`, { reply_to_message_id: ctx.message.message_id, parse_mode: "HTML", disable_web_page_preview: true });
+    try{
+        const products = await manageProducts({ userId: ctx.from.id }, 'read');
+        const list = products.result.map((product) => `<b>${product.title}</b>\nLast Price: ${product.price}\nLink: <a href="${product.link}">${product.merchant}</a>\nTo stop send /stop_${product.tracking_id}`).join('\n\n');
+        ctx.reply(`Here is your tracking list:\n\n${list}`, { reply_to_message_id: ctx.message.message_id, parse_mode: "HTML", disable_web_page_preview: true });
+    }catch(e){
+        ctx.reply('An error has beem occured please report it to admin. This my be due to you\'ve added too many products.' )
+    }
 })
 
 bot.hears(/^\/stop_([a-z0-9])/, async ctx => {
