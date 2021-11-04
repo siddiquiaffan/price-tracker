@@ -49,7 +49,7 @@ bot.command("help", (ctx) => {
         reply_markup,
       }
     );
-  } catch (e) {}
+  } catch (e) { }
 });
 
 bot.command("track", async (ctx) => {
@@ -89,7 +89,7 @@ bot.command("track", async (ctx) => {
               `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
               { parse_mode: "HTML", reply_markup }
             );
-          } catch (e) {}
+          } catch (e) { }
         } else {
           await ctx.api.editMessageText(
             ctx.chat.id,
@@ -174,7 +174,7 @@ bot.command("broadcast", async (ctx) => {
               },
             }
           );
-        } catch (e) {}
+        } catch (e) { }
       })
     );
   }
@@ -227,57 +227,28 @@ const track = async () => {
     await Promise.all(
       products.result.map(async (product) => {
         const details = await getProductDetails(product.link, product.merchant);
-        if (
-          details.ok &&
-          !isNaN(details.price) &&
-          details.price !== product.price
-        ) {
+        if (details.ok && !isNaN(details.price) && details.price !== product.price) {
           try {
-            await manageProducts(
-              {
-                tracking_id: product.tracking_id,
-                userId: product.userId,
-                merchant: product.merchant,
-                title: details.title,
-                link: product.link,
-                initPrice: product.price,
-                price: details.price,
-              },
-              "update"
-            );
+            await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price, }, "update");
             bot.api.sendMessage(
               product.userId,
-              `<a href="${details.image}"> </a><b>Price has been ${
-                details.price > product.price ? "increased" : "decreased"
-              } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${
-                details.title
-              }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${
-                details.link
-              }">${product.merchant}</a>\n\nTo stop tracking send /stop_${
-                product.tracking_id
-              }`,
+              `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
               {
                 parse_mode: "HTML",
                 reply_markup: {
                   inline_keyboard: [
                     details?.link
                       ? ([{ text: "Buy Now", url: details.link }],
-                        [
-                          {
-                            text: "Stop Tracking - " + product.tracking_id,
-                            callback_data: `stopTracking`,
-                          },
-                        ])
+                        [{ text: "Stop Tracking - " + product.tracking_id, callback_data: `stopTracking`, },])
                       : [],
-                  ],
-                },
-              }
-            );
-          } catch (e) {}
+                  ]
+                }
+              });
+          } catch (e) { bot.start() }
         }
       })
     );
-  } catch (e) {}
+  } catch (e) { }
 };
 
 bot.catch((err) => {
