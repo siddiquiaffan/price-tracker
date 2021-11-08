@@ -49,11 +49,12 @@ bot.command("help", (ctx) => {
         reply_markup,
       }
     );
-  } catch (e) {}
+  } catch (e) { }
 });
 
 bot.command("track", async (ctx) => {
-  const productUrl = ctx.message.text.replace("/track ", "");
+  const productUrlMessage = ctx.message.text.replace("/track ", "");
+  const productUrl = "http" + productUrlMessage.split("http")[1].split(" ")[0].replace("dl.", "www.")
   if (isUrl(productUrl)) {
     const merchant = productUrl
       .replace("www.", "")
@@ -89,7 +90,7 @@ bot.command("track", async (ctx) => {
               `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
               { parse_mode: "HTML", reply_markup }
             );
-          } catch (e) {}
+          } catch (e) { }
         } else {
           await ctx.api.editMessageText(
             ctx.chat.id,
@@ -174,7 +175,7 @@ bot.command("broadcast", async (ctx) => {
               },
             }
           );
-        } catch (e) {}
+        } catch (e) { }
       })
     );
   }
@@ -247,14 +248,10 @@ const track = async () => {
             );
             bot.api.sendMessage(
               product.userId,
-              `<a href="${details.image}"> </a><b>Price has been ${
-                details.price > product.price ? "increased" : "decreased"
-              } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${
-                details.title
-              }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${
-                details.link
-              }">${product.merchant}</a>\n\nTo stop tracking send /stop_${
-                product.tracking_id
+              `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
+              } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
+              }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
+              }">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id
               }`,
               {
                 parse_mode: "HTML",
@@ -273,11 +270,11 @@ const track = async () => {
                 },
               }
             );
-          } catch (e) {}
+          } catch (e) { }
         }
       })
     );
-  } catch (e) {}
+  } catch (e) { }
 };
 
 bot.catch((err) => {
