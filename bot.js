@@ -101,14 +101,7 @@ bot.command("track", async (ctx) => {
   const message = ctx.message.text.replace("/track ", "");
   processUrl(message, ctx);
 });
-    
-bot.on('::url', async ctx => {
-  if(ctx.chat.type === "private"){
-    const message = ctx.message.text;
-    processUrl(message, ctx);
-  }
-});
-
+  
 bot.command("list", async (ctx) => {
   try {
     const products = await manageProducts({ userId: ctx.from.id }, "read");
@@ -194,6 +187,13 @@ bot.command("stats", async (ctx) => {
   ctx.reply(
     `Total Users: ${users.result.length}\nTotal Products: ${products.result.length}`
   );
+});
+
+bot.on('::url', async ctx => {
+  if(ctx.chat.type === "private"){
+    const message = ctx.message.text;
+    processUrl(message, ctx);
+  }
 });
 
 bot.callbackQuery("stopTracking", async (ctx) => {
