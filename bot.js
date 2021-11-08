@@ -103,8 +103,10 @@ bot.command("track", async (ctx) => {
 });
     
 bot.on('::url', async ctx => {
-  const message = ctx.message.text;
-  processUrl(message, ctx);
+  if(ctx.chat.type === "private"){
+    const message = ctx.message.text;
+    processUrl(message, ctx);
+  }
 });
 
 bot.command("list", async (ctx) => {
