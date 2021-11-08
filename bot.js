@@ -3,6 +3,7 @@ const { Bot } = require("grammy");
 const { BOT_TOKEN, ADMINS, LIMIT } = require("./config");
 const { isUrl, getRandomId, getProductDetails } = require("./utils");
 const { manageProducts, manageUsers } = require("./db");
+const unshort = require("./unshort");
 
 const bot = new Bot(BOT_TOKEN); // Initialize bot
 
@@ -20,20 +21,63 @@ const reply_markup = {
   ],
 };
 
+const processUrl = async (msg, ctx) => {
+  try {
+  const url = await unshort(msg);
+  const productUrl = "http" + url.split("http")[1].split(" ")[0].replace("dl.", "www.")
+  if (isUrl(productUrl)) {
+    const merchant = productUrl.replace("www.", "").split("//")[1].split(".")[0];
+    if (merchant.match(/amazon|flipkart/gi)) {
+      const noOfProducts = (
+        await manageProducts({ userId: ctx.from.id }, "read")
+        )?.result?.length;
+        if (noOfProducts < LIMIT) {
+          const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
+          const details = await getProductDetails(productUrl, merchant);
+          if (details.ok) {
+            try {
+              const tracking_id = getRandomId();
+              await manageProducts(
+                { tracking_id, userId: ctx.from.id, merchant, title: details.title, link: details.link, initPrice: details.price, price: details.price, },
+                "update"
+            );
+            await ctx.api.editMessageText(
+              ctx.chat.id, sentMsg.message_id,
+              `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
+              { parse_mode: "HTML", reply_markup }
+              );
+            } catch (e) { }
+          } else {
+            await ctx.api.editMessageText(
+              ctx.chat.id, sentMsg.message_id,
+              `Sorry, I couldn't track this product. Make sure you've sent correct product link.`,
+              { parse_mode: "Markdown", reply_markup }
+              );
+            }
+          } else {
+            ctx.reply( "I'm sorry, but you can't add more products as you've already reached the maximum limit.\n\nPlease delete atleast one product. And try again.\n\nTo get list send /list",
+            { reply_to_message_id: ctx.message.message_id } );
+          }
+        } else {
+          ctx.reply( `Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.` );
+        }
+      } else {
+        ctx.reply( `Sorry ${ctx.message.chat.first_name}, I can't track this product. Make sure you've sent correct product link.` );
+      }
+    } catch(e){
+      console.error(e)
+    }
+}
+
+
 bot.command("start", (ctx) => {
   // start command
   try {
     ctx.reply(
       `Hello ${ctx.message.chat.first_name}, I can track price for Amazon & Flipkart products (Soon more).\n\nCheck /help to get started.\n`,
-      {
-        reply_to_message_id: ctx.message.message_id,
-        reply_markup,
-      }
+      { reply_to_message_id: ctx.message.message_id, reply_markup, }
     );
-    manageUsers(
-      { id: ctx.message.from.id, name: ctx.message.from.first_name },
-      "update"
-    );
+    manageUsers( { id: ctx.message.from.id, name: ctx.message.from.first_name }, "update" );
   } catch (e) {
     console.log("Error", e);
   }
@@ -52,68 +96,15 @@ bot.command("help", (ctx) => {
   } catch (e) { }
 });
 
+
 bot.command("track", async (ctx) => {
-  const productUrl = ctx.message.text.replace("/track ", "");
-  if (isUrl(productUrl)) {
-    const merchant = productUrl
-      .replace("www.", "")
-      .split("//")[1]
-      .split(".")[0];
-    if (merchant.match(/amazon|flipkart/gi)) {
-      const noOfProducts = (
-        await manageProducts({ userId: ctx.from.id }, "read")
-      )?.result?.length;
-      if (noOfProducts < LIMIT) {
-        const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, {
-          reply_to_message_id: ctx.message.message_id,
-        });
-        const details = await getProductDetails(productUrl, merchant);
-        if (details.ok) {
-          try {
-            const tracking_id = getRandomId();
-            await manageProducts(
-              {
-                tracking_id,
-                userId: ctx.from.id,
-                merchant,
-                title: details.title,
-                link: details.link,
-                initPrice: details.price,
-                price: details.price,
-              },
-              "update"
-            );
-            await ctx.api.editMessageText(
-              ctx.chat.id,
-              sentMsg.message_id,
-              `<a href="${details.image}"> </a>\nTracking <b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${merchant}</a>\n\nTo stop tracking send /stop_${tracking_id}`,
-              { parse_mode: "HTML", reply_markup }
-            );
-          } catch (e) { }
-        } else {
-          await ctx.api.editMessageText(
-            ctx.chat.id,
-            sentMsg.message_id,
-            `Sorry, I couldn't track this product. Make sure you've sent correct product link.`,
-            { parse_mode: "Markdown", reply_markup }
-          );
-        }
-      } else {
-        ctx.reply(
-          "I'm sorry, but you can't add more products as you've already reached the maximum limit.\n\nPlease delete atleast one product. And try again.\n\nTo get list send /list",
-          { reply_to_message_id: ctx.message.message_id }
-        );
-      }
-    } else {
-      ctx.reply(
-        `Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.`
-      );
-    }
-  } else {
-    ctx.reply(
-      `Sorry ${ctx.message.chat.first_name}, I can't track this product. Make sure you've sent correct product link.`
-    );
-  }
+  const message = ctx.message.text.replace("/track ", "");
+  processUrl(message, ctx);
+});
+    
+bot.on('::url', async ctx => {
+  const message = ctx.message.text;
+  processUrl(message, ctx);
 });
 
 bot.command("list", async (ctx) => {
@@ -232,7 +223,11 @@ const track = async () => {
             await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price, }, "update");
             bot.api.sendMessage(
               product.userId,
-              `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"} by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title}</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link}">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id}`,
+              `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
+              } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
+              }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
+              }">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id
+              }`,
               {
                 parse_mode: "HTML",
                 reply_markup: {
