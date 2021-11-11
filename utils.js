@@ -20,6 +20,11 @@ const selectors = {
         title: '.B_NuCI',
         price1: '._30jeq3._16Jk6d',
         image1: '#container > div > div._2c7YLP.UtUXW0._6t1WkM._3HqJxg > div._1YokD2._2GoDe3 > div._1YokD2._3Mn1Gg.col-5-12._78xt5Y > div:nth-child(1) > div > div._3li7GG > div._1BweB8 > div._3kidJX > div.CXW8mj._3nMexc > img',
+    },
+    snapdeal: {
+        title: '#productOverview > div.col-xs-14.right-card-zoom.reset-padding > div > div.pdp-fash-topcenter-inner.layout > div.row > div.col-xs-18 > h1',
+        price1: '#buyPriceBox > div.row.reset-margin > div.col-xs-14.reset-padding.padL8 > div.disp-table > div.pdp-e-i-PAY-r.disp-table-cell.lfloat > span.pdp-final-price > span',
+        image1: '#bx-slider-left-image-panel > li:nth-child(1) > img'
     }
 }
 
@@ -36,9 +41,11 @@ const getProductDetails = async(url, merchant) => {
         let link = new URL(url);
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
         link = link.toString();
-        const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
+        const price = parseInt($(selector.price1).text())
+        // .trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
         const title = $(selector.title).text().trim();
         const image = $(selector.image1).attr('src');
+        console.log(price, title, image);
         if(!title || !price) {
             return {ok: false}
         }
