@@ -27,7 +27,7 @@ const processUrl = async (msg, ctx) => {
   const productUrl = "http" + url.split("http")[1].split(" ")[0].replace("dl.", "www.")
   if (isUrl(productUrl)) {
     const merchant = productUrl.replace("www.", "").split("//")[1].split(".")[0];
-    if (merchant.match(/amazon|flipkart/gi)) {
+    if (merchant.match(/amazon|flipkart|snapdeal/gi)) {
       const noOfProducts = (
         await manageProducts({ userId: ctx.from.id }, "read")
         )?.result?.length;
