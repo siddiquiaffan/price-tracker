@@ -41,11 +41,9 @@ const getProductDetails = async(url, merchant) => {
         let link = new URL(url);
         if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
         link = link.toString();
-        const price = parseInt($(selector.price1).text())
-        // .trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
+        const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
         const title = $(selector.title).text().trim();
         const image = $(selector.image1).attr('src');
-        console.log(price, title, image);
         if(!title || !price) {
             return {ok: false}
         }
