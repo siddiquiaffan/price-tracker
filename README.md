@@ -53,8 +53,8 @@ If you like this project, please leave a 🌟.
 
 ## License
 
-[LICENSE](https://github.com/AffanTheBest/price-tracker/blob/main/LICENSE)
+[LICENSE](https://github.com/siddiquiaffan/price-tracker/blob/main/LICENSE)
 
 ---
 
-### [Follow me on GitHub](https://github.com/AffanTheBest)
+### [Follow me on GitHub](https://github.com/siddiquiaffan)
