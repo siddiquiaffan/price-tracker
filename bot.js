@@ -233,12 +233,10 @@ const track = async () => {
               {
                 parse_mode: "HTML",
                 reply_markup: {
-                  inline_keyboard: [
-                    details?.link
-                      ? ([{ text: "Buy Now", url: details.link }],
-                        [{ text: "Stop Tracking - " + product.tracking_id, callback_data: `stopTracking`, },])
-                      : [],
-                  ]
+                  inline_keyboard: details?.link ? [
+                      [{ text: "Buy Now", url: details.link }],
+                      [{ text: "Stop Tracking - " + product.tracking_id, callback_data: `stopTracking`, }]]
+                      : []
                 }
               });
           } catch (e) { bot.start() }
