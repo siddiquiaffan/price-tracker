@@ -13,7 +13,7 @@ const getRandomId = () => [...Array(10)].map(i=>(~~(Math.random()*36)).toString(
 const selectors = {
     amazon: {
         title: '#productTitle',
-        price1: 'span.a-price.a-text-price.a-size-medium.apexPriceToPay > span:nth-child(2)', price2: '#priceblock_ourprice',
+        price1: 'span.a-price.a-text-price.a-size-medium.apexPriceToPay > span:nth-child(2)', price2: 'span.a-price.aok-align-center.priceToPay > span.a-offscreen',
         image1: '#landingImage'
     },
     flipkart: {
