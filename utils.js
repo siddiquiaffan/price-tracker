@@ -39,7 +39,7 @@ const getProductDetails = async(url, merchant) => {
         const $ = cheerio.load(res.data);
         const selector = selectors[merchant];
         let link = new URL(url);
-        if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
+        if(merchant == 'amazon') link.searchParams.set('tag', 'adarsh-goel');
         link = link.toString();
         const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
         const title = $(selector.title).text().trim();
