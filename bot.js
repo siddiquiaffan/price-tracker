@@ -87,7 +87,7 @@ bot.command("help", (ctx) => {
   // help command
   try {
     ctx.reply(
-      `/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @@assupportchat.`,
+      `/start - Start the bot\n/help - get this message.\n/track {Product Link} - Add product to tracking list.\n/stop_{Tracking ID} - Stop tracking.\n/list - Get list of products that are being tracked.\n\nFor more help join @codexmaniachat.`,
       {
         reply_to_message_id: ctx.message.message_id,
         reply_markup,
