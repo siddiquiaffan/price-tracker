@@ -12,11 +12,11 @@ const reply_markup = {
   inline_keyboard: [
     [
       { text: "👨‍💻 Developer", url: "https://github.com/code-x-mania" },
-      { text: " Onwer", url: "https://t.me/dc4noob" },
+      { text: "🌟 Owner", url: "https://t.me/dc4noob" },
     ],
     [
-      { text: "🔃 Updates", url: "https://t.me/codexmaniachat" },
-      { text: "💁‍♂️ Support", url: "https://t.me/codexmaniachat" },
+      { text: "🔃 Updates Channel", url: "https://t.me/codexmania" },
+      { text: "💁‍♂️ Support Group", url: "https://t.me/codexmaniachat" },
     ],
   ],
 };
