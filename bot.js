@@ -11,12 +11,12 @@ const reply_markup = {
   //common repky markup
   inline_keyboard: [
     [
-      { text: "👨‍💻 Developer", url: "https://github.com/AffanTheBest" },
-      { text: "🛒 Deals Channel", url: "https://t.me/aslootdeals" },
+      { text: "👨‍💻 Developer", url: "https://github.com/code-x-mania" },
+      { text: " Onwer", url: "https://t.me/dc4noob" },
     ],
     [
-      { text: "🔃 Updates", url: "https://t.me/asprojects" },
-      { text: "💁‍♂️ Support", url: "https://t.me/assupportchat" },
+      { text: "🔃 Updates", url: "https://t.me/codexmaniachat" },
+      { text: "💁‍♂️ Support", url: "https://t.me/codexmaniachat" },
     ],
   ],
 };
