@@ -7,6 +7,12 @@ If you like this project, please leave a 🌟.
 
 ---
 
+- [Features](#features)
+- [Usage](#how-to-use)
+- [Contributing](#contributing)
+
+---
+
 ## Features
 
 ```
@@ -31,14 +37,20 @@ If you like this project, please leave a 🌟.
 
 ---
 
-## NOTE
+## Deploy
 
-```
-- Do not clone this repo (You can fork it instead).
-- Use this bot at your own risk.
-- This bot can be a little bit slow cuz using cloudfare workers for scrapping product data (To avoid ip blocking from Amazon & Flipkart)
-```
+- [![Deploy with Heroku](https://www.herokucdn.com/deploy/button.svg "Deploy with Heroku")](https://heroku.com/deploy?template=https://github.com/siddiquiaffan/price-tracker "Deploy with Heroku")
 
+- [![Deploy+on+Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/siddiquiaffan/price-tracker&envs=ADMINS,BOT_TOKEN,DB_URL,WORKER_URL,API_KEY,LIMIT&ADMINSDesc=Telegarm+ids+of+admins+separated+by+space&BOT_TOKENDesc=Get+Your+Bot+Token+From+@BotFather.&DB_URLDesc=Create+A+Database+In+Mongodb+And+Get+URL.&WORKER_URLDesc=Paste+worker.js+code+in+Cloudfare+Worker+and+get+url.&API_KEYDesc=Any+secret+key+to+access+API&LIMITDesc=Limit+of+products+to+track+per+user.)
+
+- ### Local -
+    
+    ```
+    - Clone Repository
+    - Install Dependencies (npm install)
+    - Create .env file and fill it with your details.
+    - Start App (npm start)
+    ```
 ---
 
 ## Contributing
@@ -47,6 +59,16 @@ If you like this project, please leave a 🌟.
 - Fork this repo.
 - Make changes.
 - Create a pull request.
+```
+
+---
+
+## NOTE
+
+```
+- Do not clone this repo (You can fork it instead).
+- Use this bot at your own risk.
+- This bot can be a little bit slow cuz using cloudfare workers for scrapping product data (To avoid ip blocking from Amazon & Flipkart)
 ```
 
 ---
