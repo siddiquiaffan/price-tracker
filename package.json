@@ -11,6 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/AffanTheBest/price-tracker.git"
   },
+  "type": "module",
   "keywords": [
     "price-tracker",
     "amazon",

@@ -1,9 +1,9 @@
 // Imports
-const { Bot } = require("grammy");
-const { BOT_TOKEN, ADMINS, LIMIT } = require("./config");
-const { isUrl, getRandomId, getProductDetails } = require("./utils");
-const { manageProducts, manageUsers } = require("./db");
-const unshort = require("./unshort");
+import { Bot } from "grammy"
+import { BOT_TOKEN, ADMINS, LIMIT } from "./config.js"
+import { isUrl, getRandomId, getProductDetails } from "./utils.js"
+import { manageProducts, manageUsers } from "./db.js"
+import unshort from "./unshort.js"
 
 const bot = new Bot(BOT_TOKEN); // Initialize bot
 
@@ -257,4 +257,4 @@ bot.catch((err) => {
 
 setInterval(track, 3600000); //Track every hr.
 
-module.exports = bot;
+export default bot;
