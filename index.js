@@ -1,8 +1,8 @@
-const { getRandomId, getProductDetails } = require("./utils");
-const { manageProducts, manageUsers } = require("./db");
-const {API_KEY} = require('./config');
-const express = require('express');
-const bot = require('./bot');
+import { getRandomId, getProductDetails } from "./utils.js"
+import { manageProducts, manageUsers } from "./db.js"
+import {API_KEY} from './config.js'
+import express from 'express'
+import bot from './bot.js'
 
 //Globals
 const port = process.env.PORT || 3000;

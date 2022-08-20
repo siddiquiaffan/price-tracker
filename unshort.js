@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 const unshort = async (url) => {
     const extractUrl = req => req?.request?.res?.responseUrl ||
         req?.request?._redirectable?._currentUrl ||
@@ -16,4 +16,4 @@ const unshort = async (url) => {
     return longUrl;
 }
 
-module.exports = unshort;
+export default unshort;

@@ -1,5 +1,5 @@
-const {DB_URL} = require('./config');
-const MongoClient = require('mongodb').MongoClient;
+import {DB_URL} from './config.js';
+import {MongoClient} from 'mongodb';
 var mongo;
 
 // Check if mongodb is connected or not
@@ -65,4 +65,4 @@ const manageProducts = async(data, action) => {
     }
 }
 
-module.exports = {manageProducts, manageUsers};
+export {manageProducts, manageUsers};

@@ -1,4 +1,4 @@
-require('dotenv').config()
+import 'dotenv/config'
 
 // Check if bot token is there or not
 if(!process.env.BOT_TOKEN) {
@@ -11,11 +11,11 @@ if(!process.env.DB_URL) {
     process.exit(1);
 }
 
-module.exports = {
-    ADMINS: process.env.ADMINS || '',
-    BOT_TOKEN: process.env.BOT_TOKEN || '',
-    DB_URL: process.env.DB_URL || '',
-    WORKER_URL: process.env.WORKER_URL || '',
-    API_KEY: process.env.API_KEY || '', // Generate any API Key and pass it when accessing the API.
-    LIMIT: Number(process.env.LIMIT), // Maximum number of products can be added by a user at a time.
-}
+const ADMINS = process.env.ADMINS || ''
+const BOT_TOKEN = process.env.BOT_TOKEN || ''
+const DB_URL = process.env.DB_URL || ''
+const WORKER_URL = process.env.WORKER_URL || ''
+const API_KEY = process.env.API_KEY || '' // Generate any API Key and pass it when accessing the API.
+const LIMIT = Number(process.env.LIMIT) // Maximum number of products can be added by a user at a time.
+ 
+export { ADMINS, BOT_TOKEN, DB_URL, WORKER_URL, API_KEY, LIMIT }
