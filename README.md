@@ -9,8 +9,9 @@ If you like this project, please leave a 🌟.
 
 - [Features](#features)
 - [Usage](#how-to-use)
+- [Deployment](#deploy)
 - [Contributing](#contributing)
-
+- 
 ---
 
 ## Features
