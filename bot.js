@@ -184,8 +184,10 @@ bot.command("users", async (ctx) => {
 bot.command("stats", async (ctx) => {
   const users = await manageUsers({}, "read");
   const products = await manageProducts({}, "read");
+  let userCount = 0;
+  products.result.map((p) => (p += item.users.length));
   ctx.reply(
-    `Total Users: ${users.result.length}\nTotal Products: ${products.result.length}`
+    `Total Users: ${users.result.length}\nTotal Products: ${userCount}`
   );
 });
 
@@ -222,23 +224,25 @@ const track = async () => {
         const details = await getProductDetails(product.link, product.merchant);
         if (details.ok && !isNaN(details.price) && details.price !== product.price) {
           try {
-            await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price, }, "update");
-            bot.api.sendMessage(
-              product.userId,
-              `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
-              } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
-              }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
-              }">${product.merchant}</a>\n\nTo stop tracking send /stop_${product.tracking_id
-              }`,
-              {
-                parse_mode: "HTML",
-                reply_markup: {
-                  inline_keyboard: details?.link ? [
-                      [{ text: "Buy Now", url: details.link }],
-                      [{ text: "Stop Tracking - " + product.tracking_id, callback_data: `stopTracking`, }]]
-                      : []
-                }
-              });
+            await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price,  users: product.users}, "update");
+            await Promise.all(product.users.map(async user => {
+              bot.api.sendMessage(
+                user.userId,
+                `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
+                } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
+                }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
+                }">${product.merchant}</a>\n\nTo stop tracking send /stop_${user.tracking_id
+                }`,
+                {
+                  parse_mode: "HTML",
+                  reply_markup: {
+                    inline_keyboard: details?.link ? [
+                        [{ text: "Buy Now", url: details.link }],
+                        [{ text: "Stop Tracking - " + user.tracking_id, callback_data: `stopTracking`, }]]
+                        : []
+                  }
+                });
+            }))
           } catch (e) { bot.start() }
         }
       })

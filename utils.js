@@ -28,9 +28,32 @@ const selectors = {
     }
 }
 
+const productCommonUrl = (link) => {
+  const url = new URL(link?.replace("www.", ""));
+  const merchant = url.hostname.split(".")[0];
+  let id, commonUrl;
+  switch (merchant) {
+    case "amazon":
+      id = link.match(
+        /https?:\/\/(www\.)?(.*)amazon\.([a-z\.]{2,6})(\/d\/(.*)|\/(.*)\/?(?:dp|o|gp|-)\/)(aw\/d\/|product\/)?(B[0-9]{1}[0-9A-Z]{8}|[0-9]{9}(?:X|[0-9]))/i
+      ).splice(-1)[0];
+      commonUrl = "https://www.amazon.in/dp/" + id + "?tag=asloot-21";
+      break;
+    case "flipkart":
+      id = url.searchParams.get("pid");
+      commonUrl = id ? "https://www.flipkart.com/product/p/itme?pid=" + id : link.includes('/p/itm') ?link.split('?')[0] : link;
+      break;
+    default:
+      null;
+  }
+
+  return commonUrl;
+};
+
 const getProductDetails = async(url, merchant) => {
     try{
-        const res = await axios.get(`${WORKER_URL}/?url=${encodeURIComponent(url)}`, {
+        const commonUrl = productCommonUrl(url);
+        const res = await axios.get(`${WORKER_URL}/?url=${encodeURIComponent(commonUrl)}`, {
             headers: {
                 "User-Agent":
                   "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36",
@@ -38,20 +61,17 @@ const getProductDetails = async(url, merchant) => {
         });
         const $ = cheerio.load(res.data);
         const selector = selectors[merchant];
-        let link = new URL(url);
-        if(merchant == 'amazon') link.searchParams.set('tag', 'asloot-21');
-        link = link.toString();
         const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
         const title = $(selector.title).text().trim();
         const image = $(selector.image1).attr('src');
         if(!title || !price) {
             return {ok: false}
         }
-        return {ok: true, title, price, image, link}
+        return {ok: true, title, price, image, link: commonUrl}
     }catch(e){
         console.log(e);
         return {ok: false}
     }
 }
 
-export { isUrl, getRandomId, getProductDetails };
+export { isUrl, getRandomId, getProductDetails, productCommonUrl };

@@ -48,10 +48,26 @@ const manageProducts = async(data, action) => {
         const collection = db.collection('tasks');
         switch(action) {
             case 'delete':
-                await collection.deleteOne({tracking_id: data.tracking_id, userId: data.userId});
+                await collection.updateOne(
+                  { users: {userId: data.userId, tracking_id: data.tracking_id } },
+                  { $pull: { users : {userId: data.userId, tracking_id: data.tracking_id } }, }
+                );
                 return {ok: true}
             case 'update':
-                const res = await collection.updateOne({tracking_id: data.tracking_id}, {$set: data}, {upsert: true});
+                await collection.updateOne(
+                  { link: data.link },
+                  {
+                    $set: {
+                      link: data.link,
+                      merchant: data.merchant,
+                      initPrice: data.initPrice,
+                      price: data.price,
+                      title: data.title,
+                    },
+                    $addToSet: {users : Array.isArray(data.users) ? {$each: data.users} : data.users},
+                  },
+                  { upsert: true }
+                );
                 return {ok: true, tracking_id: data.tracking_id}
             case 'read':
                 const result = await collection.find(data).toArray();
@@ -64,5 +80,11 @@ const manageProducts = async(data, action) => {
         return {ok: false}
     }
 }
+
+// manageProducts({}, 'read').then(data => {
+//     console.log(data);
+//     fs.writeFileSync('products.json', JSON.stringify(data.result));
+// }).catch(e => {
+// })
 
 export {manageProducts, manageUsers};
