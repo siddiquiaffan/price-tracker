@@ -83,10 +83,4 @@ const manageProducts = async(data, action) => {
     }
 }
 
-// manageProducts({}, 'read').then(data => {
-//     console.log(data);
-//     fs.writeFileSync('products.json', JSON.stringify(data.result));
-// }).catch(e => {
-// })
-
 export {manageProducts, manageUsers};
