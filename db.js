@@ -44,7 +44,7 @@ const manageUsers = async(data, action) => {
 const manageProducts = async(data, action) => {
     await connectDb();
     try{
-        const db = mongo.db('TESTS');
+        const db = mongo.db('AS_TRACKER');
         const collection = db.collection('tasks');
         switch(action) {
             case 'delete':
