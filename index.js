@@ -63,7 +63,9 @@ app.get('/stats', async (req, res) => {
     try{
         const users = await manageUsers({}, 'read');
         const products = await manageProducts({}, 'read');
-        res.status(200).send(JSON.stringify({users: users?.result?.length, products: products?.result?.length}))
+        let productCount = 0;
+        products.result.map((p) => (p += item.users.length));
+        res.status(200).send(JSON.stringify({users: users?.result?.length, products: productCount }))
     }catch(e){
 
     }
