@@ -182,13 +182,18 @@ bot.command("users", async (ctx) => {
 });
 
 bot.command("stats", async (ctx) => {
-  const users = await manageUsers({}, "read");
-  const products = await manageProducts({}, "read");
-  let productCount = 0;
-  products.result.map((p) => (p += item.users.length));
-  ctx.reply(
-    `Total Users: ${users.result.length}\nTotal Products: ${productCount}`
-  );
+  try{
+    const[users, products] = await Promise.all([manageUsers, manageProducts].map(
+      async (func) => await func({}, "read")
+    ));
+    let prodCount = 0;
+    products.result.map(prod => prodCount += prod.users.length);
+    ctx.reply(
+      `Total Users: ${users.result.length}\nTotal Products: ${prodCount}`
+    );
+  }catch(e){
+    console.log(e)
+  }
 });
 
 bot.on('::url', async ctx => {
