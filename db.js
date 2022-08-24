@@ -41,13 +41,6 @@ const manageUsers = async(data, action) => {
     }
 }
 
-const addToSet = (data) => {
-    if(Array.isArray(data.users)) 
-        return({$addToSet: { users: {$each: data.users}}})
-    else    
-        return({$exists: false}, {$addToSet: { users: data.users}})
-}
-
 const manageProducts = async(data, action) => {
     await connectDb();
     try{
