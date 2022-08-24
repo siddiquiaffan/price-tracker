@@ -41,10 +41,18 @@ const manageUsers = async(data, action) => {
     }
 }
 
+const addToSet = (data) => {
+    if(Array.isArray(data.users)) 
+        return({$addToSet: { users: {$each: data.users}}})
+    else    
+        return({$exists: false}, {$addToSet: { users: data.users}})
+}
+
 const manageProducts = async(data, action) => {
     await connectDb();
     try{
-        const db = mongo.db('AS_TRACKER');
+        console.log(data.userId)
+        const db = mongo.db('TESTS');
         const collection = db.collection('tasks');
         switch(action) {
             case 'delete':
@@ -55,18 +63,20 @@ const manageProducts = async(data, action) => {
                 return {ok: true}
             case 'update':
                 await collection.updateOne(
-                  { link: data.link },
-                  {
-                    $set: {
-                      link: data.link,
-                      merchant: data.merchant,
-                      initPrice: data.initPrice,
-                      price: data.price,
-                      title: data.title,
-                    },
-                    $addToSet: {users : Array.isArray(data.users) ? {$each: data.users} : data.users},
-                  },
-                  { upsert: true }
+                    { link: data.link },
+                    [
+                        { $set: {
+                            link: data.link, merchant: data.merchant, initPrice: data.initPrice, price: data.price, title: data.title,
+                            users: {$concatArrays: [
+                                {$ifNull: ["$users", []]},
+                                {$filter: {
+                                    input: data.users || [{userId: data.userId, tracking_id: data.tracking_id }],
+                                    cond: {$not: {$in: ['$$this.userId', {$ifNull: ["$users.userId", []]}]}}
+                                }}
+                            ]}
+                        }},
+                    ],
+                    { upsert: true }
                 );
                 return {ok: true, tracking_id: data.tracking_id}
             case 'read':
