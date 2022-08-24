@@ -104,11 +104,11 @@ bot.command("track", async (ctx) => {
   
 bot.command("list", async (ctx) => {
   try {
-    const products = await manageProducts({ userId: ctx.from.id }, "read");
+    const products = await manageProducts({ 'users.userId': ctx.from.id }, "read");
     const list = products.result
       .map(
         (product) =>
-          `<b>${product.title}</b>\nLast Price: ${product.price}\nLink: <a href="${product.link}">${product.merchant}</a>\nTo stop send /stop_${product.tracking_id}`
+          `<b>${product.title}</b>\nLast Price: ${product.price}\nLink: <a href="${product.link}">${product.merchant}</a>\nTo stop send /stop_${product.users.filter(u => u.userId == ctx.from.id)[0].tracking_id}`
       )
       .join("\n\n");
     ctx.reply(`Here is your tracking list:\n\n${list}`, {
@@ -184,10 +184,10 @@ bot.command("users", async (ctx) => {
 bot.command("stats", async (ctx) => {
   const users = await manageUsers({}, "read");
   const products = await manageProducts({}, "read");
-  let userCount = 0;
+  let productCount = 0;
   products.result.map((p) => (p += item.users.length));
   ctx.reply(
-    `Total Users: ${users.result.length}\nTotal Products: ${userCount}`
+    `Total Users: ${users.result.length}\nTotal Products: ${productCount}`
   );
 });
 
