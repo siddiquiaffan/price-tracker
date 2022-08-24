@@ -51,7 +51,6 @@ const addToSet = (data) => {
 const manageProducts = async(data, action) => {
     await connectDb();
     try{
-        console.log(data.userId)
         const db = mongo.db('TESTS');
         const collection = db.collection('tasks');
         switch(action) {
