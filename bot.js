@@ -246,7 +246,7 @@ const track = async () => {
                         [{ text: "Stop Tracking - " + user.tracking_id, callback_data: `stopTracking`, }]]
                         : []
                   }
-                });
+                }).catch(e => {})
             }))
           } catch (e) { bot.start() }
         }
