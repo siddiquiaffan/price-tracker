@@ -1,6 +1,6 @@
 <a href="https://t.me/AsPriceTrackerBot"> <img src="https://telegra.ph/file/081d452dd37708fb4777b.png" alt="Logo" style="border-radius:15px;"></a><br><br>
 
-# Price Tracker
+# [Price Tracker](https://t.me/AsPriceTrackerBot)
 
 A Telegram bot that can track price of Amazon & flipkart products (more coming soon)
 
