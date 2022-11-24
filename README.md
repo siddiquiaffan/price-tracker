@@ -24,11 +24,11 @@ A Telegram bot that can track price of Amazon & flipkart products (more coming s
 
 > To use this bot in your Telegram, [click here](t.me/AsPriceTrackerBot)
 
-/start - Start the bot
-/help - get this message.
-/track {Product Link} - Add product to tracking list.
-/stop {Tracking ID} - Stop tracking.
-/list - Get list of products that are being tracked.
+/start - Start the bot <br>
+/help - get this message <br>
+/track {Product Link} - Add product to tracking list <br>
+/stop {Tracking ID} - Stop tracking <br>
+/list - Get list of products that are being tracked <br>
 
 ---
 
