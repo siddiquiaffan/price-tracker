@@ -52,17 +52,17 @@ const processUrl = async (msg, ctx) => {
               ctx.chat.id, sentMsg.message_id,
               `Sorry, I couldn't track this product. Make sure you've sent correct product link.`,
               { parse_mode: "Markdown", reply_markup }
-              );
+              ).catch(e => {});
             }
           } else {
             ctx.reply( "I'm sorry, but you can't add more products as you've already reached the maximum limit.\n\nPlease delete atleast one product. And try again.\n\nTo get list send /list",
-            { reply_to_message_id: ctx.message.message_id } );
+            { reply_to_message_id: ctx.message.message_id } ).catch(e => {});
           }
         } else {
-          ctx.reply( `Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.` );
+          ctx.reply( `Sorry, I can't track this product. Cuz the link you sent is not a amazon or flipkart product link.` ).catch(e => {});
         }
       } else {
-        ctx.reply( `Sorry ${ctx.message.chat.first_name}, I can't track this product. Make sure you've sent correct product link.` );
+        ctx.reply( `Sorry ${ctx.message.chat.first_name}, I can't track this product. Make sure you've sent correct product link.` ).catch(e => {});
       }
     } catch(e){
       console.error(e)
@@ -76,7 +76,7 @@ bot.command("start", (ctx) => {
     ctx.reply(
       `Hello ${ctx.message.chat.first_name}, I can track price for Amazon & Flipkart products (Soon more).\n\nCheck /help to get started.\n`,
       { reply_to_message_id: ctx.message.message_id, reply_markup, }
-    );
+    ).catch(() =>  {})
     manageUsers( { id: ctx.message.from.id, name: ctx.message.from.first_name }, "update" );
   } catch (e) {
     console.log("Error", e);
@@ -92,7 +92,7 @@ bot.command("help", (ctx) => {
         reply_to_message_id: ctx.message.message_id,
         reply_markup,
       }
-    );
+    ).catch(() =>  {})
   } catch (e) { }
 });
 
@@ -224,36 +224,59 @@ bot.callbackQuery("stopTracking", async (ctx) => {
 const track = async () => {
   try {
     const products = await manageProducts({}, "read");
-    await Promise.all(
-      products.result.map(async (product) => {
-        const details = await getProductDetails(product.link, product.merchant);
-        if (details.ok && !isNaN(details.price) && details.price !== product.price) {
-          try {
-            await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price,  users: product.users}, "update");
-            await Promise.all(product.users.map(async user => {
-              bot.api.sendMessage(
-                user.userId,
-                `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
-                } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
-                }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
-                }">${product.merchant}</a>\n\nTo stop tracking send /stop_${user.tracking_id
-                }`,
-                {
-                  parse_mode: "HTML",
-                  reply_markup: {
-                    inline_keyboard: details?.link ? [
-                        [{ text: "Buy Now", url: details.link }],
-                        [{ text: "Stop Tracking - " + user.tracking_id, callback_data: `stopTracking`, }]]
-                        : []
-                  }
-                }).catch(e => {})
-            }))
-          } catch (e) { bot.start() }
-        }
-      })
-    );
-  } catch (e) { }
+    // Process 10 products at a time
+    for (let i = 0; i < products.result.length; i = i + 10 ) {
+      const temp = products.result.slice(i, i + 10) 
+    
+      await Promise.all(
+        temp.map(async (product) => {
+          const details = await getProductDetails(product.link, product.merchant);
+
+          if (details.ok && !isNaN(details.price) && details.price !== product.price) {
+            try {
+              await manageProducts({ tracking_id: product.tracking_id, userId: product.userId, merchant: product.merchant, title: details.title, link: product.link, initPrice: product.price, price: details.price,  users: product.users}, "update");
+              await Promise.all(product.users.map(async user => {
+                bot.api.sendMessage(
+                  user.userId,
+                  `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
+                  } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
+                  }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
+                  }">${product.merchant}</a>\n\nTo stop tracking send /stop_${user.tracking_id
+                  }`,
+                  {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                      inline_keyboard: details?.link ? [
+                          [{ text: "Buy Now", url: details.link }],
+                          [{ text: "Stop Tracking - " + user.tracking_id, callback_data: `stopTracking`, }]]
+                          : []
+                    }
+                  }).catch(e => console.log(`🚀 ~ file: bot.js:255 ~ temp.map ~ e:`, e))
+              }))
+
+              // wait for 1 sec
+              await new Promise(resolve => setTimeout(resolve, 1000))
+            } catch (e) { 
+              console.log(`🚀 ~ file: bot.js:260 ~ temp.map ~ e:`, e)
+              bot.start()
+              // wait for 5 sec
+              await new Promise(resolve => setTimeout(resolve, 5000))
+             }
+          }
+        })
+      );
+    }
+  } catch (e) {
+    console.log(`🚀 ~ file: bot.js:270 ~ track ~ e:`, e)
+   }
 };
+
+bot.command("update", async (ctx) => {
+  if (ADMINS.includes(ctx.from.id)) {
+    track()
+    ctx.reply("Updating products...")
+  }
+})
 
 bot.catch((err) => {
   console.error("err");
@@ -266,4 +289,4 @@ bot.catch((err) => {
 
 setInterval(track, 3600000); //Track every hr.
 
-export default bot;
+export default bot
