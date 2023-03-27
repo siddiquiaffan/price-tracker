@@ -61,7 +61,7 @@ const getProductDetails = async(url, merchant) => {
         });
         const $ = cheerio.load(res.data);
         const selector = selectors[merchant];
-        const price = parseInt($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseInt($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
+        const price = parseFloat($(selector.price1).text().trim().replace(/^\D+|[^0-9.]/g, '')) || parseFloat($(selector.price2).text().trim().replace(/^\D+|[^0-9.]/g, ''));
         const title = $(selector.title).text().trim();
         const image = $(selector.image1).attr('src');
         if(!title || !price) {
