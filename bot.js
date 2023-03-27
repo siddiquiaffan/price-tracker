@@ -1,7 +1,7 @@
 // Imports
 import { Bot } from "grammy"
 import { BOT_TOKEN, ADMINS, LIMIT } from "./config.js"
-import { isUrl, getRandomId, getProductDetails } from "./utils.js"
+import { isUrl, getRandomId, getProductDetails, productCommonUrl } from "./utils.js"
 import { manageProducts, manageUsers } from "./db.js"
 import unshort from "./unshort.js"
 
@@ -28,12 +28,11 @@ const processUrl = async (msg, ctx) => {
   if (isUrl(productUrl)) {
     const merchant = productUrl.replace("www.", "").split("//")[1].split(".")[0];
     if (merchant.match(/amazon|flipkart|snapdeal/gi)) {
-      const noOfProducts = (
-        await manageProducts({ userId: ctx.from.id }, "read")
-        )?.result?.length;
+      const noOfProducts = ( await manageProducts({ userId: ctx.from.id }, "read") )?.result?.length;
         if (noOfProducts < LIMIT) {
           const sentMsg = await ctx.reply(`Tracking ${merchant} product...`, { reply_to_message_id: ctx.message.message_id });
           const details = await getProductDetails(productUrl, merchant);
+          
           if (details.ok) {
             try {
               const tracking_id = getRandomId();
@@ -240,14 +239,14 @@ const track = async () => {
                   user.userId,
                   `<a href="${details.image}"> </a><b>Price has been ${details.price > product.price ? "increased" : "decreased"
                   } by ${Math.abs(product.price - details.price)}</b>. \n\n<b>${details.title
-                  }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${details.link
+                  }</b>\n\nCurrent Price: <b>${details.price}</b>\nLink: <a href="${productCommonUrl(details.link, true)
                   }">${product.merchant}</a>\n\nTo stop tracking send /stop_${user.tracking_id
                   }`,
                   {
                     parse_mode: "HTML",
                     reply_markup: {
                       inline_keyboard: details?.link ? [
-                          [{ text: "Buy Now", url: details.link }],
+                          [{ text: "Buy Now", url: productCommonUrl(details.link, true) }],
                           [{ text: "Stop Tracking - " + user.tracking_id, callback_data: `stopTracking`, }]]
                           : []
                     }

@@ -1,4 +1,4 @@
-import cheerio from 'cheerio'
+import * as cheerio from 'cheerio'
 import axios from 'axios'
 import {WORKER_URL} from './config.js'
 
@@ -28,7 +28,7 @@ const selectors = {
     }
 }
 
-const productCommonUrl = (link) => {
+const productCommonUrl = (link, tag) => {
   const url = new URL(link?.replace("www.", ""));
   const merchant = url.hostname.split(".")[0];
   let id, commonUrl;
@@ -37,7 +37,7 @@ const productCommonUrl = (link) => {
       id = link.match(
         /https?:\/\/(www\.)?(.*)amazon\.([a-z\.]{2,6})(\/d\/(.*)|\/(.*)\/?(?:dp|o|gp|-)\/)(aw\/d\/|product\/)?(B[0-9]{1}[0-9A-Z]{8}|[0-9]{9}(?:X|[0-9]))/i
       ).splice(-1)[0];
-      commonUrl = "https://www.amazon.in/dp/" + id + "?tag=asloot-21";
+      commonUrl = "https://www.amazon.in/dp/" + id + `${tag ? ('?tag=' + 'asloot-21') : ''}`;
       break;
     case "flipkart":
       id = url.searchParams.get("pid");
