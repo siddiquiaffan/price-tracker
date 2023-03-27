@@ -1,0 +1,21 @@
+# flyctl launch added from .gitignore
+node_modules
+package-lock.json
+logs
+_IGNORE_session
+
+# managed
+data.json
+node-persis
+qr.png
+# end managed
+
+# managed
+_IGNORE_
+WWebJS
+# end managed
+
+temp
+
+#git
+**/.git
