@@ -34,6 +34,8 @@ A Telegram bot that can track price of Amazon & flipkart products (more coming s
 
 ## Deploy
 
+**NOTE** - We're now using https proxy for sending requests. So add your proxy url in env as `PROXY` 
+
 [![Deploy with Heroku](https://www.herokucdn.com/deploy/button.svg "Deploy with Heroku")](https://heroku.com/deploy?template=https://github.com/siddiquiaffan/price-tracker "Deploy with Heroku")
 
 [![Deploy on Railway](https://railway.app/button.svg "Deploy on Railway")](https://railway.app/new/template?template=https://github.com/siddiquiaffan/price-tracker&envs=ADMINS,BOT_TOKEN,DB_URL,WORKER_URL,API_KEY,LIMIT&ADMINSDesc=Telegarm+ids+of+admins+separated+by+space&BOT_TOKENDesc=Get+Your+Bot+Token+From+@BotFather.&DB_URLDesc=Create+A+Database+In+Mongodb+And+Get+URL.&WORKER_URLDesc=Paste+worker.js+code+in+Cloudfare+Worker+and+get+url.&API_KEYDesc=Any+secret+key+to+access+API&LIMITDesc=Limit+of+products+to+track+per+user. "Deploy on Railway")
@@ -47,6 +49,14 @@ Deploy locally:
 
 ---
 
+### POST-DEPLOYMENT
+**Setup bot:** Get your deployment url and navigate to {YOUR_DEPLOYMENT_URL}/setup
+```
+Example: https://price-tracker.herokuapp.com/setup
+```
+=> Replace `https://price-tracker.herokuapp.com/` with your deployment url.
+
+---
 ## Contributing
 
 - Fork this repo ![fork](https://img.shields.io/github/forks/siddiquiaffan/price-tracker?label=fork&logo=Github)
