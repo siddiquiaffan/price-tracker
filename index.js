@@ -99,4 +99,8 @@ app.get('/setup', async (req, res) => {
 })
 
 app.listen(port, async () => console.log('listening to port ' + port));
-// bot.start().then(() => console.log('Bot launched!'));
+
+// if NODE_ENV is development, start polling
+if (process.env.NODE_ENV === 'development') {
+    bot.start();
+}
