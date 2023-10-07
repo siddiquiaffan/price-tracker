@@ -33,6 +33,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "grammy": "^1.5.4",
+    "https-proxy-agent": "^7.0.2",
     "mongodb": "^4.9.0"
   }
 }
