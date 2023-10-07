@@ -3,6 +3,7 @@ import { manageProducts, manageUsers } from "./db.js"
 import {API_KEY} from './config.js'
 import express from 'express'
 import bot from './bot.js'
+import { webhookCallback } from "grammy"
 
 //Globals
 const port = process.env.PORT || 3000;
@@ -81,5 +82,21 @@ app.get('/info', async(req, res) => {
     res.send(JSON.stringify({error: 'Invalid API key'}))
 })
 
+// use bot webhook path
+app.use('/bot', webhookCallback(bot, 'express'));
+
+// set bot webhook, use req.url as webhook path
+app.get('/setup', async (req, res) => {
+    // get host name from req
+    try {
+        const host = req.hostname;
+        bot.api.setWebhook(`https://${host}/bot`);
+        res.send('ok');
+    } catch (e) {
+        console.log(e);
+        res.send('error');
+    };
+})
+
 app.listen(port, async () => console.log('listening to port ' + port));
-bot.start().then(() => console.log('Bot launched!'));
+// bot.start().then(() => console.log('Bot launched!'));

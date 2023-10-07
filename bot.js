@@ -289,7 +289,7 @@ const track = async () => {
               await new Promise(resolve => setTimeout(resolve, 1000))
             } catch (e) {
               console.log(`🚀 ~ file: bot.js:260 ~ temp.map ~ e:`, e)
-              bot.start()
+              // bot.start()
               // wait for 5 sec
               await new Promise(resolve => setTimeout(resolve, 5000))
             }
@@ -318,7 +318,7 @@ bot.catch((err) => {
   const e = err.error;
   console.error("Error: ", e.description);
 
-  bot.start();
+  // bot.start();
 });
 
 setInterval(track, 3600000); //Track every hr.
