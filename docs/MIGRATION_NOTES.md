@@ -5,6 +5,11 @@
 > be preserved. Where the original is ambiguous, the assumption is recorded explicitly rather than
 > silently chosen.
 
+**Cutover status (2026-10-13):** the TypeScript rewrite is complete and the legacy JS files have been
+**removed** after the parity suite passed (`pnpm typecheck && pnpm lint && pnpm test && pnpm build
+&& pnpm test:coverage`). Everything below is the historical record of what the original did, kept for
+audit and regression-test traceability.
+
 Original project: `siddiquiaffan/price-tracker` (GPL-3.0). Files read end-to-end:
 `index.js`, `bot.js`, `config.js`, `db.js`, `utils.js`, `unshort.js`, `worker.js`, `Dockerfile`,
 `Procfile`, `app.json`, `.github/workflows/docker-image.yml`, `package.json`, `README.md`.

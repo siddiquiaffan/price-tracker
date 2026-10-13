@@ -4,13 +4,6 @@ node_modules
 worker/.wrangler
 pnpm-lock.yaml
 *.js
-bot.js
-index.js
-db.js
-config.js
-utils.js
-unshort.js
-worker.js
 docs
 .opencode
 README.md
