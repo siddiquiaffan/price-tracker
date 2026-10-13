@@ -1,39 +1,84 @@
 {
   "name": "price-tracker",
-  "version": "1.0.0",
-  "description": "A telegram bot which can track prices for amazon and flipkart products. (Soon more)",
-  "main": "bot.js",
+  "version": "2.0.0",
+  "description": "Telegram bot + HTTP API that tracks Amazon & Flipkart prices. TypeScript rewrite with pluggable stores and pluggable egress providers.",
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@12.9.1",
   "scripts": {
-    "test": " nodemon bot.js --watch ./ --ignore *.json",
-    "start": " node index.js"
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "circular": "madge --circular --extensions ts src",
+    "worker:typecheck": "tsc -p worker/tsconfig.json",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "bullmq": "^5.34.5",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "grammy": "^1.32.0",
+    "hono": "^4.6.16",
+    "ioredis": "^5.4.2",
+    "mongodb": "^6.12.0",
+    "pino": "^9.6.0",
+    "socks-proxy-agent": "^8.0.5",
+    "undici": "^7.2.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "madge": "^8.0.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.19.1",
+    "vitest": "^2.1.8"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AffanTheBest/price-tracker.git"
+    "url": "git+https://github.com/siddiquiaffan/price-tracker.git"
   },
-  "type": "module",
   "keywords": [
     "price-tracker",
     "amazon",
     "flipkart",
-    "ecommerce",
-    "tracker",
     "telegram",
-    "bot"
+    "bot",
+    "typescript"
   ],
   "author": "https://github.com/AffanTheBest",
-  "license": "https://github.com/AffanTheBest/price-tracker/blob/main/LICENSE",
   "bugs": {
-    "url": "https://github.com/AffanTheBest/price-tracker/issues"
+    "url": "https://github.com/siddiquiaffan/price-tracker/issues"
   },
-  "homepage": "https://github.com/AffanTheBest/price-tracker#readme",
-  "dependencies": {
-    "axios": "^0.22.0",
-    "cheerio": "^1.0.0-rc.10",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "grammy": "^1.5.4",
-    "https-proxy-agent": "^7.0.2",
-    "mongodb": "^4.9.0"
-  }
+  "homepage": "https://github.com/siddiquiaffan/price-tracker#readme"
 }

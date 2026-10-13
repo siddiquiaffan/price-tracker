@@ -1,0 +1,6 @@
+name = "price-tracker-egress"
+main = "index.ts"
+compatibility_date = "2024-11-01"
+
+[vars]
+WORKER_ALLOWED_HOSTS = "amazon.in,amzn.in,flipkart.com,dl.flipkart.com"
