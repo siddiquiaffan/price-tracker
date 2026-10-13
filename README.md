@@ -107,6 +107,7 @@ pnpm dev               # tsx watch (long polling)
 | `pnpm format:check`    | Prettier check                                  |
 | `pnpm test`            | Vitest (offline, fakes only)                    |
 | `pnpm test:coverage`   | Coverage with per-area thresholds               |
+| `pnpm test:e2e:online` | Live scrape of `tests/e2e/online.test.ts` (real network, opt-in) |
 | `pnpm circular`        | Madge circular-dependency check                 |
 | `pnpm worker:dev`      | Run the Cloudflare Worker locally (wrangler)    |
 

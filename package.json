@@ -21,6 +21,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e:online": "vitest run --config vitest.e2e.config.ts",
     "circular": "madge --circular --extensions ts src",
     "worker:typecheck": "tsc -p worker/tsconfig.json",
     "worker:dev": "wrangler dev --config worker/wrangler.toml",

@@ -221,3 +221,36 @@ Real HTML fixtures live under `tests/fixtures/<store>/` with variants: in-stock,
 out-of-stock, no-price, JSON-LD, captcha. Each fixture's origin URL and capture date is recorded in
 `tests/fixtures/README.md`. Where live access is blocked, the selector is marked
 **"needs verification"** rather than guessed.
+
+---
+
+## 8. Live e2e and transport fixes (found while building the online suite)
+
+`pnpm test:e2e:online` runs `tests/e2e/online.test.ts` against the **real** network (opt-in:
+`vitest.e2e.config.ts` sets `RUN_ONLINE_E2E=1`; the suite self-skips in the default offline run so CI
+never depends on Amazon or our block rules). It wires the production pipeline — real stores, real
+egress (`EGRESS_CONFIG` → legacy `PROXY`/`WORKER_URL` → `direct`), real `EgressFetcher`, in-memory
+persistence. It currently tracks the live OnePlus N6 Lite listing
+(`https://www.amazon.in/gp/product/B0HBPQJN54`, BE/... query params stripped by canonicalization),
+asserts the parsed product (ASIN, canonical `/dp/` URL, title, price > 0, availability), then runs a
+second live re-check expecting no spurious notification.
+
+Building it exposed two gaps in the new egress layer (both fixed in
+`src/infra/egress/providers/http-util.ts`), verified against that live listing:
+
+- **Redirect following (parity with legacy axios `maxRedirects: 5`).** Amazon 301s
+  `/dp/B0HBPQJN54` → the slug URL; undici 7's `request()` no longer supports the native `redirect`
+  option (it throws "use the redirect interceptor") and the node `http`/`https` transports never
+  followed. Both transports now follow up to `MAX_REDIRECTS = 5` hops manually, downgrade
+  POST→GET on 301/302/303 per the Fetch spec, keep method/body on 307/308, and strip
+  `authorization`/`cookie`/`proxy-authorization` on cross-origin hops.
+- **Content-encoding decoding.** `undici.request()`/node `http` return **raw** gzip/deflate/brotli
+  bytes (unlike `fetch()`, which decodes transparently), so parsed pages arrived as binary garbage.
+  Bodies are now decoded via `decompressBody` using `node:zlib` per the `content-encoding` header,
+  falling back to raw bytes on a stale/mismatched header.
+
+**Trade-off recorded:** transport-level redirect following means the `UrlResolver`'s per-hop
+`assertSafe` SSRF guard no longer runs for hops it used to drive itself (the initial URL is still
+guarded, and product URLs are normalized to allowlisted hosts before fetch). This mirrors legacy
+axios behaviour and keeps the store fetch path correct; documented here so the per-hop check isn't
+silently re-added in a way that breaks live scraping.

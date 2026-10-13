@@ -1,6 +1,7 @@
 import http from 'node:http';
 import net from 'node:net';
 import type { AddressInfo } from 'node:net';
+import { brotliCompressSync, deflateSync, gzipSync } from 'node:zlib';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { getGlobalDispatcher, MockAgent, setGlobalDispatcher, type Dispatcher } from 'undici';
 import { CompositeBlockDetector } from '../../src/infra/egress/block-detector.js';
@@ -18,6 +19,7 @@ import { HttpProxyProvider } from '../../src/infra/egress/providers/http-proxy.p
 import { SocksProxyProvider } from '../../src/infra/egress/providers/socks-proxy.provider.js';
 import { UnlockerApiProvider } from '../../src/infra/egress/providers/unlocker-api.provider.js';
 import {
+  decompressBody,
   errorMessage,
   normalizeHeaders,
   performNodeRequest,
@@ -123,6 +125,17 @@ describe('http-util helpers', () => {
     );
     expect(errorMessage('boom')).toBe('boom');
   });
+
+  it('decompresses gzip, deflate, and brotli bodies per content-encoding', () => {
+    const html = '<!doctype html><h1>landed</h1>';
+    expect(decompressBody(gzipSync(Buffer.from(html)), 'gzip')).toBe(html);
+    expect(decompressBody(deflateSync(Buffer.from(html)), 'deflate')).toBe(html);
+    expect(decompressBody(brotliCompressSync(Buffer.from(html)), 'br')).toBe(html);
+    expect(decompressBody(Buffer.from(html), undefined)).toBe(html);
+    expect(decompressBody(Buffer.from('plain'), 'identity')).toBe('plain');
+    // Stale/mismatched header: fall back to the raw bytes rather than crash.
+    expect(decompressBody(Buffer.from('not compressed'), 'gzip')).toBe('not compressed');
+  });
 });
 
 describe('performNodeRequest', () => {
@@ -200,6 +213,49 @@ describe('performNodeRequest', () => {
           timeoutMs: 50,
         }),
       ).rejects.toThrow(/timed out/);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+
+  it('follows redirects to the final response', async () => {
+    const server = http.createServer((req, res) => {
+      if (req.url === '/start') {
+        res.writeHead(302, { location: '/final' });
+        res.end();
+        return;
+      }
+      res.writeHead(200, { 'content-type': 'text/plain' });
+      res.end('landed');
+    });
+    const { port } = await listen(server);
+    try {
+      const result = await performNodeRequest({
+        url: new URL(`http://127.0.0.1:${port}/start`),
+        method: 'GET',
+        timeoutMs: 2000,
+      });
+      expect(result.status).toBe(200);
+      expect(result.body).toBe('landed');
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+
+  it('stops after the redirect hop cap', async () => {
+    const server = http.createServer((_req, res) => {
+      res.writeHead(302, { location: '/loop' });
+      res.end();
+    });
+    const { port } = await listen(server);
+    try {
+      await expect(
+        performNodeRequest({
+          url: new URL(`http://127.0.0.1:${port}/loop`),
+          method: 'GET',
+          timeoutMs: 2000,
+        }),
+      ).rejects.toThrow(/Too many redirects/);
     } finally {
       await new Promise((resolve) => server.close(resolve));
     }
@@ -631,6 +687,26 @@ describe('performUndiciRequest', () => {
     });
     expect(result.status).toBe(200);
     expect(result.headers['content-type']).toBe('application/json');
+    await local.close();
+  });
+
+  it('follows 3xx redirects to the final response', async () => {
+    const local = new MockAgent();
+    local.disableNetConnect();
+    const pool = local.get('https://redir.example');
+    pool
+      .intercept({ path: '/start', method: 'GET' })
+      .reply(302, 'redirecting', { headers: { location: 'https://redir.example/final' } });
+    pool.intercept({ path: '/final', method: 'GET' }).reply(200, 'landed');
+
+    const result = await performUndiciRequest({
+      url: new URL('https://redir.example/start'),
+      method: 'GET',
+      timeoutMs: 1000,
+      dispatcher: local,
+    });
+    expect(result.status).toBe(200);
+    expect(result.body).toBe('landed');
     await local.close();
   });
 });
