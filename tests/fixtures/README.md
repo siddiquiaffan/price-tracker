@@ -22,6 +22,7 @@ HTML captures used by parser and store contract tests. **These are sanitised.**
 | `out-of-stock.html` | out of stock | synthetic | 2026-10-13 |
 | `no-price.html` | title present, price hidden | synthetic | 2026-10-13 |
 | `captcha.html` | robot check page | synthetic | 2026-10-13 |
+| `challenge-retry.html` | 200-status "Something went wrong" retry page (decoy product title, no product data) | synthetic replica of the live batman-returns challenge page | 2026-10-13 |
 
 > **NEEDS VERIFICATION**: these fixtures are synthetic placeholders that exercise the
 > parser contract. Before shipping, replace them with real captured pages and update

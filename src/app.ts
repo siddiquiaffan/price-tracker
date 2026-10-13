@@ -21,6 +21,7 @@ import { createNotificationStrategy } from './core/services/notification-strateg
 import { createStoreRegistry, type InMemoryStoreRegistry } from './stores/index.js';
 import { createPoolRegistry, type EgressPoolRegistry } from './infra/egress/index.js';
 import { CompositeBlockDetector } from './infra/egress/block-detector.js';
+import { FlipkartBlockDetector } from './stores/flipkart/block-detector.js';
 import { DnsHostResolver } from './infra/network/index.js';
 import { PinoLogger } from './infra/logger/index.js';
 import {
@@ -84,6 +85,7 @@ export async function createApp(
 
   // --- stores + block detection ---
   const blockDetector = new CompositeBlockDetector();
+  blockDetector.register('flipkart', new FlipkartBlockDetector());
   const storeRegistry = createStoreRegistry({ blockDetector });
 
   // --- database ---

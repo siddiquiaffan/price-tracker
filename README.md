@@ -107,9 +107,31 @@ pnpm dev               # tsx watch (long polling)
 | `pnpm format:check`    | Prettier check                                  |
 | `pnpm test`            | Vitest (offline, fakes only)                    |
 | `pnpm test:coverage`   | Coverage with per-area thresholds               |
-| `pnpm test:e2e:online` | Live scrape of `tests/e2e/online.test.ts` (real network, opt-in) |
+| `pnpm test:e2e:online` | Opt-in live scrapes in `tests/e2e/online.test.ts` (Amazon + Flipkart defaults, real network) |
 | `pnpm circular`        | Madge circular-dependency check                 |
 | `pnpm worker:dev`      | Run the Cloudflare Worker locally (wrangler)    |
+
+### Live e2e (`pnpm test:e2e:online`)
+
+Runs `tests/e2e/online.test.ts` against real stores through the production egress stack (opt-in;
+skipped in the default offline run). One case per store — Amazon and Flipkart by default — each
+scraping a live listing, asserting the parsed product (store routing, tracking-free canonical URL,
+id, title, price, availability) and a clean re-check.
+
+Point cases at other stores/products without code changes:
+
+```bash
+# POSIX: inline JSON
+ONLINE_E2E_URLS='{"flipkart":"https://www.flipkart.com/..."}' pnpm test:e2e:online
+
+# Any shell (Windows-friendly): same JSON in a file
+ONLINE_E2E_URLS_FILE=/path/to/urls.json pnpm test:e2e:online
+```
+
+Overridden URLs assert structurally (store, canonical URL, id/title/price) instead of exact values.
+Direct-IP scraping of Flipkart is unreliable (it intermittently serves 200-status challenge pages),
+so run Flipkart cases over `PROXY`/`WORKER_URL` when possible. Shown live values are printed with
+`[online e2e]`.
 
 ---
 

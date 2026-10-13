@@ -228,12 +228,13 @@ out-of-stock, no-price, JSON-LD, captcha. Each fixture's origin URL and capture 
 
 `pnpm test:e2e:online` runs `tests/e2e/online.test.ts` against the **real** network (opt-in:
 `vitest.e2e.config.ts` sets `RUN_ONLINE_E2E=1`; the suite self-skips in the default offline run so CI
-never depends on Amazon or our block rules). It wires the production pipeline — real stores, real
+never depends on Amazon, Flipkart, or our block rules). It wires the production pipeline — real stores, real
 egress (`EGRESS_CONFIG` → legacy `PROXY`/`WORKER_URL` → `direct`), real `EgressFetcher`, in-memory
-persistence. It currently tracks the live OnePlus N6 Lite listing
-(`https://www.amazon.in/gp/product/B0HBPQJN54`, BE/... query params stripped by canonicalization),
-asserts the parsed product (ASIN, canonical `/dp/` URL, title, price > 0, availability), then runs a
-second live re-check expecting no spurious notification.
+persistence. It is case-driven per store (see §8.1): Amazon OnePlus N6 Lite
+(`https://www.amazon.in/gp/product/B0HBPQJN54`, tracking params stripped to canonical `/dp/`),
+Flipkart vivo V80, plus any store passed via `ONLINE_E2E_URLS`/`ONLINE_E2E_URLS_FILE`. Each case
+asserts the parsed product (store id, product id, canonical URL, title, price > 0, availability),
+then runs a second live re-check expecting no spurious notification.
 
 Building it exposed two gaps in the new egress layer (both fixed in
 `src/infra/egress/providers/http-util.ts`), verified against that live listing:
@@ -254,3 +255,55 @@ Building it exposed two gaps in the new egress layer (both fixed in
 guarded, and product URLs are normalized to allowlisted hosts before fetch). This mirrors legacy
 axios behaviour and keeps the store fetch path correct; documented here so the per-hop check isn't
 silently re-added in a way that breaks live scraping.
+
+### 8.1 Multi-store, case-driven live suite
+
+`tests/e2e/online.test.ts` is **case-driven** — one `LiveProductCase` per store in `DEFAULT_CASES`,
+each with its own live URL and exact expectations (`productId`, canonical URL, title pattern),
+currently Amazon (OnePlus N6 Lite `/dp/B0HBPQJN54`) and Flipkart (vivo V80
+`product/p/itme?pid=MOBHR8J2FRP7VRYG`). Assertions are structural on top of the exact checks: the
+URL must resolve to the case's store, be stored in each store's own canonical (tracking-free) form,
+carry a non-empty id/title, a live price > 0, a known availability, and a second re-check must not
+spuriously notify.
+
+Additional stores or different live products of the same store plug in **without code changes** via
+`ONLINE_E2E_URLS='{"flipkart":"https://…"}'` (inline JSON — POSIX) or `ONLINE_E2E_URLS_FILE` (path to
+the same JSON, Windows-friendly). Overridden cases drop the exact-value assertions (the id/canonical
+URL are unknown ahead of time) and assert structurally instead.
+
+Because bot-hostile stores like Flipkart intermittently serve **200-status retry/challenge pages**
+from plain IPs, egress-availability failures (`AllEgressFailedError`) are retried up to
+`MAX_LIVE_ATTEMPTS = 3` per case; functional failures (parse errors, failed assertions) fail hard.
+
+### 8.2 Flipkart live scraping: two block-detection bugs + UA default
+
+Live verification against the Flipkart case surfaced two bugs that made Flipkart effectively
+un-scrapable, plus one default that hurt:
+
+1. **`'captcha'` substring false-positive on every real page (fixed in
+   `src/infra/egress/block-detector.ts`).** Flipkart product pages ship
+   `"isReCaptchaEnabled":true` in their embedded config JSON, so the generic detector's bare
+   `body.includes('captcha')` flagged **every real page** as blocked → `AllEgressFailedError` on the
+   whole store. Signals are now regexes with word boundaries (`\bcaptcha\b`), which still match
+   standalone challenge text ("complete the captcha", `alt="captcha"`) but not camelCase config
+   keys. Regression-tested in `tests/egress/flipkart-block-detector.test.ts`.
+2. **200-status retry pages slipped through (fixed in `src/stores/flipkart/block-detector.ts`).**
+   Flipkart also answers with a **200** "Something went wrong. Please try again later." page (the
+   `batman-returns` challenge shell) that carries a **decoy `og:title`** but zero product data — no
+   JSON-LD, no `#container` SPA root, no price, and no captcha text. The parser turned it into a
+   price-less decoy product. A Flipkart store rule (registered in `app.ts`, mirrored in the live
+   suite) recognises the retry-page family by its template markers (`retry_btn` wired to
+   `window.location.reload()`, `reload_btn`, `errorImg`), verified against a live capture and
+   reproduced offline in `tests/fixtures/flipkart/challenge-retry.html`. Challenge pages now count
+   as provider failures, so the pool retries/fails over instead of persisting decoys.
+3. **Flipkart default UA is now a desktop Chrome UA (in `src/stores/flipkart/flipkart-store.ts`).**
+   Interleaved live probes showed Flipkart serves the 200-status challenge page to the shared
+   Googlebot UA ~50% of the time from a plain IP while a browser fingerprint gets the real page on
+   every attempt. `FlipkartStore` now defaults to `FLIPKART_USER_AGENT` (still overridable via
+   `BaseStoreOptions.userAgent`); Amazon keeps the Googlebot default.
+
+Also confirmed: the Flipkart CSS selectors in `selectors.ts` are **stale** on the current live
+layout (hashed class names); the JSON-LD `offers` block carries the price, so parsing works on real
+pages without touching selectors. Direct-IP scraping of Flipkart can still hit intermittent
+challenges under rate-limiting — that is exactly when `MAX_LIVE_ATTEMPTS`, and in production a proxy
+or worker egress, take over.
