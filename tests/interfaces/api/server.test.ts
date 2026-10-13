@@ -127,6 +127,15 @@ describe('API server auth (A3: API_KEY on every route but /bot)', () => {
   });
 });
 
+describe('GET /healthz (A9: unauthenticated liveness probe)', () => {
+  it('answers ok without an API key', async () => {
+    const app = makeApp(setup());
+    const res = await app.request('/healthz');
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
+});
+
 describe('GET /', () => {
   it('lists a user trackings as legacy-shaped tasks documents', async () => {
     const suite = setup();

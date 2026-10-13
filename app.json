@@ -1,6 +1,6 @@
 {
   "name": "price-tracker",
-  "description": "A telegram bot which can track prices for amazon and flipkart products. (Soon more)",
+  "description": "A telegram bot which can track prices for amazon and flipkart products. (Soon more) — TypeScript rewrite with pluggable stores and egress providers.",
   "keywords": ["price-tracker", "amazon", "flipkart", "ecommerce", "tracker", "telegram", "bot"],
   "repository": "https://github.com/AffanTheBest/price-tracker",
   "website": "https://asloot.cf",
@@ -10,12 +10,14 @@
   "buildpacks": [
     {
       "url": "heroku/nodejs"
-    },
-    {
-      "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/jontewks/puppeteer.tgz"
     }
   ],
   "env": {
+    "NODE_ENV": {
+      "description": "Set to production for webhook-mode Telegram (no long polling).",
+      "value": "production",
+      "required": false
+    },
     "ADMINS": {
       "description": "Telegram admin ID.",
       "value": "",
@@ -26,9 +28,44 @@
       "value": "",
       "required": true
     },
+    "API_KEY": {
+      "description": "Secret key required by every API route except the /bot webhook.",
+      "value": "",
+      "required": true
+    },
     "DB_URL": {
       "description": "Mongo db database URL. Get it from https://cloud.mongodb.com",
       "value": ""
+    },
+    "DB_NAME": {
+      "description": "Mongo database name (defaults to AS_TRACKER).",
+      "value": "AS_TRACKER",
+      "required": false
+    },
+    "LIMIT": {
+      "description": "Maximum number of products one user can track.",
+      "value": "5",
+      "required": false
+    },
+    "EGRESS_CONFIG": {
+      "description": "JSON (or a path to a JSON file) describing egress pools and providers. Supports ${ENV_VAR} interpolation.",
+      "value": "",
+      "required": false
+    },
+    "PROXY": {
+      "description": "Legacy: proxy URL used for scraping (http:// or socks5://). Shorthand for a single EGRESS_CONFIG proxy pool.",
+      "value": "",
+      "required": false
+    },
+    "WORKER_URL": {
+      "description": "Legacy: Cloudflare Worker URL used for scraping.",
+      "value": "",
+      "required": false
+    },
+    "NOTIFY_STRATEGY": {
+      "description": "every-change (default) | only-drop | threshold.",
+      "value": "every-change",
+      "required": false
     }
   },
   "formation": {

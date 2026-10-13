@@ -184,6 +184,12 @@ Today: notify on **every** change (both rise and fall). Keep this as the default
   Telegram webhook **secret token** verified on incoming updates.
 - **A8 — Legacy egress.** A deployment with only `PROXY` and/or `WORKER_URL` set must keep working;
   these map into the new egress config (back-compat shim).
+- **A9 — Liveness probe.** `GET /healthz` returns `{ ok: true }` **without** an API key, so Docker /
+  platform health checks and the CI smoke test can probe the process. This is a new endpoint
+  (not in legacy); the business routes stay fully guarded per A1.
+- **A10 — Egress configuration changes.** `EGRESS_CONFIG` (inline JSON or file path, with `${ENV_VAR}`
+  interpolation) is the new way to define pools/providers. This is optional; the legacy `PROXY` /
+  `WORKER_URL` shim and the built-in `direct` default keep old deployments working unchanged.
 
 ---
 

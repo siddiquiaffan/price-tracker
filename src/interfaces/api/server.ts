@@ -57,6 +57,11 @@ export function createApiServer(deps: ApiServerDeps): Hono {
   const { trackingService, users, logger } = deps;
   const guard = authGuard(deps.apiKey);
 
+  // GET /healthz -> liveness probe. Deliberately unauthenticated (A9): the API
+  // key guard protects business routes only, so orchestrators and the Docker CI
+  // smoke test can probe the process without credentials.
+  app.get('/healthz', (c) => c.json({ ok: true }));
+
   // GET / -> user's tracked products (legacy: manageProducts({userId}, 'read'))
   app.get('/', guard, async (c) => {
     const userId = Number(c.req.query('userId'));

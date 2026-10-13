@@ -1,21 +1,32 @@
-# flyctl launch added from .gitignore
+# VCS
+.git
+.github
+.husky
+
+# Build output / tooling dirs
 node_modules
-package-lock.json
-logs
-_IGNORE_session
+dist
+coverage
+worker/.wrangler
 
-# managed
-data.json
-node-persis
-qr.png
-# end managed
+# Source material not needed in the image
+docs
+tests
+worker
 
-# managed
-_IGNORE_
-WWebJS
-# end managed
+# Legacy JS entrypoints (superseded by src/)
+*.js
 
-temp
+# Local config / secrets
+.env
+.env.*
+!.env.example
 
-#git
-**/.git
+# Editors / OS
+.vscode
+.idea
+*.log
+.DS_Store
+
+# Root-level scratch (harmless stray dirs like plan checkouts)
+C:Userssiddi.opencodeplan
